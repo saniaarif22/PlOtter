@@ -1,7 +1,7 @@
 %{ open Ast %}
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA
-%token PLUS MINUS TIMES DIVIDE ASSIGN
+%token DECR INCR PLUS MINUS TIMES DIVIDE ASSIGN
 %token EQ NEQ LT LEQ GT GEQ
 %token RETURN IF ELSE FOR WHILE INT
 %token <int> LITERAL
@@ -69,6 +69,18 @@ expr_opt:
 expr:
     LITERAL          { Literal($1) }
   | ID               { Id($1) }
+  | ID INCR          { Assign($1,
+                            Binop(Id($1), Add, 
+                                Binop(Id($1),Equal,Id($1))
+                                )
+                            )
+                     }
+  | ID DECR          { Assign($1,
+                            Binop(Id($1), Sub,
+                                Binop(Id($1),Equal,Id($1))
+                                )
+                            )
+                     }
   | expr PLUS   expr { Binop($1, Add,   $3) }
   | expr MINUS  expr { Binop($1, Sub,   $3) }
   | expr TIMES  expr { Binop($1, Mult,  $3) }
