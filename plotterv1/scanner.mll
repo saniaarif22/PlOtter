@@ -1,36 +1,60 @@
 { open Parser }
 
 rule token = parse
-  [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
-| "/*"     { comment lexbuf }           (* Comments *)
-| '('      { LPAREN }
-| ')'      { RPAREN }
-| '{'      { LBRACE }
-| '}'      { RBRACE }
-| ';'      { SEMI }
-| ','      { COMMA }
-| '+'      { PLUS }
-| '-'      { MINUS }
-| '*'      { TIMES }
-| '/'      { DIVIDE }
-| '='      { ASSIGN }
-| "=="     { EQ }
-| "!="     { NEQ }
-| '<'      { LT }
-| "<="     { LEQ }
-| ">"      { GT }
-| ">="     { GEQ }
-| "if"     { IF }
-| "else"   { ELSE }
-| "for"    { FOR }
-| "while"  { WHILE }
+  [' ' '\t' '\r'] { token lexbuf } (*whitespace*) (*punctuations*)
+| ['\n'] { EOL }
+| '+' { PLUS } (*operators*)
+| '-' { MINUS }
+| '*' { TIMES }
+| '/' { DIVIDE }
+| '%' { MOD }
+| ">=" { GE }
+| "<=" { LE }
+| "==" { EQ }
+| "!=" {NEQ}
+| "**" {SQUARE}
+| '>' { LARGER }
+| '<' { SMALLER }
+| '(' { LPAREN }
+| ')' { RPAREN }
+| '[' { LBRACK }
+| ']' { RBRACK }
+| ',' { COMMA }
+| '#' { COMMENT }
+| '.' { BIND }
+| '=' { ASSIGN }
+| "and" { AND }
+| "or" { OR }
+| "not" { NOT }
+| ';'  { SEMI }
+| ':'  { COLON }
+| "integer" { INTEGER } (*types*)
+| "string" { STRING }
+| "num" { NUM }
+| "bool" { BOOL }
+| "point" { POINT }
+| "if" { IF } (*controlling sequence*)
+| "else" { ELSE }
+| "then" { THEN }
+| "end" { END }
+| "for" { FOR }
+| "while" { WHILE }
+| "break" { BREAK }
+| "continue" { CONTINUE }
+| "print" { PRINT }
+| "none" { NONE }
+| "list" { LIST }
+| "fn" { FN }
 | "return" { RETURN }
-| "num"    { INT }
-| ['0'-'9']+ as lxm { LITERAL(int_of_string lxm) }
-| ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
+| "true" { TRUE }
+| "false"  { FALSE }
+| ['0'-'9']+ as lit { INT(int_of_string lit) }
+| ['0'-'9']*'.'['0'-'9']+ as lit { FLO(float_of_string lit) }
+| '"'[^'"']*'"' as lit { STR(lit) }
+| ['A'-'Z' 'a'-'z']+['A'-'Z' 'a'-'z' '0'-'9']* as lit { ID(lit) }
 | eof { EOF }
-| _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
+| _  {raise (Failure("illegal character"))}
 
 and comment = parse
-  "*/" { token lexbuf }
+  "#" { token lexbuf }
 | _    { comment lexbuf }
