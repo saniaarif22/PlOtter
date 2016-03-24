@@ -1,8 +1,10 @@
 { open Parser }
 
 rule token = parse
-  [' ' '\t' '\r'] { token lexbuf } (*whitespace*) (*punctuations*)
+  [' ' '\t' '\r'] { token lexbuf } (*whitespace*)
+(*punctuations*)
 | ['\n'] { EOL }
+| "*/" { token lexbuf }
 | '+' { PLUS } (*operators*)
 | '-' { MINUS }
 | '*' { TIMES }
@@ -25,12 +27,12 @@ rule token = parse
 | '=' { ASSIGN }
 | "and" { AND }
 | "or" { OR }
+| "in" { IN }
 | "not" { NOT }
 | ';'  { SEMI }
 | ':'  { COLON }
-| "integer" { INTEGER } (*types*)
 | "string" { STRING }
-| "num" { NUM }
+| "num" { FLOAT }
 | "bool" { BOOL }
 | "point" { POINT }
 | "if" { IF } (*controlling sequence*)
@@ -56,5 +58,5 @@ rule token = parse
 | _  {raise (Failure("illegal character"))}
 
 and comment = parse
-  "#" { token lexbuf }
+  "*/" { token lexbuf }
 | _    { comment lexbuf }
