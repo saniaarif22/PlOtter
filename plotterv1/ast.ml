@@ -33,7 +33,7 @@ type stmt = (* Statements *)
   | Break
   | Continue
     and func_decl = {(*function declaration*)
-      return_type : string;
+      (* return_type : string; *)
       fname : string;
       formals : bind list;
       locals : bind list;
@@ -75,6 +75,7 @@ let rec string_of_expr = function
   | Point(x,y) -> "point (" ^ (string_of_float x) ^ "," ^ (string_of_float y) ^ ")"
   | Noexpr -> ""
 
+let string_of_vdecl (tp,id) =   "num " ^ " " ^ id ^ ";\n" 
 
 
 
@@ -82,7 +83,7 @@ let rec string_of_stmt = function
     Block(stmts) ->
       "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
   | Expr(expr) -> string_of_expr expr ^ ";\n"
-  | Var_decl(tp, id) -> string_of_vdecl(tp,id)
+  | Var_decl(tp, id) ->  "num " ^ " " ^ id ^ ";\n"
   | Continue -> "continue";
   | Break -> "break";
   | Return(expr) -> "return " ^ string_of_expr expr ^ ";\n";
@@ -93,14 +94,16 @@ let rec string_of_stmt = function
       "for (" ^ string_of_expr e1  ^ " ; " ^ string_of_expr e2 ^ " ; " ^
       string_of_expr e3  ^ ") " ^ string_of_stmt s
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
+  | Func_dec(f) ->  string_of_fdecl f and 
+ 
+    string_of_fdecl fdecl =
+      fdecl.fname ^ "(" ^ 
+      String.concat ", " (List.map string_of_vdecl fdecl.formals) ^
+      ")\n{\n" ^
+      String.concat "" (List.map string_of_vdecl fdecl.locals) ^
+      String.concat "" (List.map string_of_stmt fdecl.body) ^
+      "}\n"
 
-let string_of_vdecl (tp,id) =   "num " ^ " " ^ id ^ ";\n" 
-
-let string_of_fdecl fdecl =
-  fdecl.fname ^ "(" ^ String.concat ", " fdecl.formals ^ ")\n{\n" ^
-  String.concat "" (List.map string_of_vdecl fdecl.locals) ^
-  String.concat "" (List.map string_of_stmt fdecl.body) ^
-  "}\n"
 
 let string_of_program (vars, funcs) =
   String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
