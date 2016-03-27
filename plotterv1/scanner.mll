@@ -10,13 +10,13 @@ rule token = parse
 | '*' { TIMES }
 | '/' { DIVIDE }
 | '%' { MOD }
-| ">=" { GE }
-| "<=" { LE }
-| "==" { EQ }
-| "!=" {NEQ}
-| "**" {SQUARE}
-| '>' { LARGER }
-| '<' { SMALLER }
+| ">=" { GEQ }
+| "<=" { LEQ }
+| "==" { EQUAL }
+| "!=" { NEQ }
+| "**" { SQUARE }
+| '>' { GREATER }
+| '<' { LESS }
 | '(' { LPAREN }
 | ')' { RPAREN }
 | '[' { LBRACK }
