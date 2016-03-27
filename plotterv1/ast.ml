@@ -24,7 +24,7 @@ type expr = (*expressions*)
 type stmt = (* Statements *)
   Block of stmt list
   | Expr of expr
-  | Var_decl of bind (* (type, id) *)
+  | Var_decl of string * string (* (type, id) *)
   | Return of expr
   | If of expr * stmt * stmt
   | For of expr * expr * expr * stmt
@@ -36,7 +36,7 @@ type stmt = (* Statements *)
       (* return_type : string; *)
       fname : string;
       formals : bind list;
-      locals : bind list;
+      (* locals : bind list; *)
       body : stmt list;
     }
 
@@ -69,13 +69,16 @@ let rec string_of_expr = function
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
+  | Noexpr -> ""
+(* *)
   | Bool(x) -> "bool" ^ (string_of_bool x)
   | String(x) -> "string" ^ x
   | Num(x) -> "num" ^ (string_of_float x)
   | Point(x,y) -> "point (" ^ (string_of_float x) ^ "," ^ (string_of_float y) ^ ")"
-  | Noexpr -> ""
+(**)
 
-let string_of_vdecl (tp,id) =   "num " ^ " " ^ id ^ ";\n" 
+  
+let string_of_vdecl (tp,id) =   ( tp) ^ " " ^ id ^ ";\n" 
 
 
 
