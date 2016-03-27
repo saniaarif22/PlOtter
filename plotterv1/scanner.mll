@@ -23,7 +23,7 @@ rule token = parse
 | ']' { RBRACK }
 | ',' { COMMA }
 | '#' { COMMENT }
-| '.' { BIND }
+| '.' { OF }
 | '=' { ASSIGN }
 | "and" { AND }
 | "or" { OR }
@@ -32,7 +32,7 @@ rule token = parse
 | ';'  { SEMI }
 | ':'  { COLON }
 | "string" { STRING }
-| "num" { FLOAT }
+| "num" { NUM }
 | "bool" { BOOL }
 | "point" { POINT }
 | "if" { IF } (*controlling sequence*)
@@ -46,13 +46,13 @@ rule token = parse
 | "print" { PRINT }
 | "none" { NONE }
 | "list" { LIST }
+| "hash" { HASH }
 | "fn" { FN }
 | "return" { RETURN }
 | "true" { TRUE }
 | "false"  { FALSE }
-| ['0'-'9']+ as lit { INT(int_of_string lit) }
-| ['0'-'9']*'.'['0'-'9']+ as lit { FLO(float_of_string lit) }
-| '"'[^'"']*'"' as lit { STR(lit) }
+| ['0'-'9']+('.')?['0'-'9']* as lxm { LITERAL(float_of_string lit) } (*Change to add negative*)
+| ['"'][^'"']*['"'] as lit { STR(lit) }
 | ['A'-'Z' 'a'-'z']+['A'-'Z' 'a'-'z' '0'-'9']* as lit { ID(lit) }
 | eof { EOF }
 | _  {raise (Failure("illegal character"))}
