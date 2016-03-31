@@ -4,11 +4,13 @@
 %token PLUS MINUS TIMES DIVIDE MOD ASSIGN NOT
 %token EQUAL NEQ LESS GREATER LEQ GEQ
 %token AND OR NOT
-%token SEMI COMMA COMMENT OF
+%token SEMI COMMA COMMENT OF COLON
 %token STRING NUM BOOL POINT NONE LIST HASH
+%token TRUE FALSE
 %token RETURN IF ELSE FOR WHILE END BREAK CONTINUE THEN FN
-%token <float> LITERAL
-%token <string> STR
+%token PRINT
+%token <float> LIT_NUM
+%token <string> LIT_STR
 %token <string> ID
 %token EOF
 
@@ -44,7 +46,7 @@ code:
         FN ID LPAREN formals_opt RPAREN COLON EOL stmt_list END
         { { fname = $2;
             formals = $4;
-            body = List.rev $7 } }
+            body = List.rev $8 } }
     
     formals_opt:
         /* nothing */ { [] }
@@ -104,11 +106,12 @@ code:
         | fdecl { $1 }
     
     other_stmt:
-        | expr EOL { Expr($1) }
+        | expr EOL           { Expr($1) }
+        | log_expr EOL       { Expr($1) }
         | ID ASSIGN expr EOL { Assign(Id($1), $3) }
-        | RETURN expr EOL { Return($2) }
-        | FOR expr COLON EOL stmt_list END
-        | vdecl EOL { $1 }
+        | PRINT expr EOL     { Print($2) }
+        | RETURN expr EOL    { Return($2) }
+        | vdecl EOL          { $1 }
         
     other_stmt_list:
         /* nothing */ { [] }
@@ -123,8 +126,9 @@ code:
                     Expressions     
    ============================================= */
    
+   /*  List and hash based operations left */
    
-   log_expr:  (*OF left*)
+   log_expr:  
   | expr EQUAL  expr { Binop($1, Equal, $3) }
   | expr NEQ  expr { Binop($1, Neq,   $3) }
   | expr LESS  expr { Binop($1, Less,  $3) }
@@ -133,32 +137,23 @@ code:
   | expr GEQ  expr { Binop($1, Geq,   $3) }
   | log_expr AND log_expr { Binop($1, And, $3) }
   | log_expr OR log_expr { Binop($1, Or, $3) }
-  
-  (*change*) 
+   
   
   expr: 
-  | access_expr { $1 }
-  | nacc_expr { $1 }
-  
-  nacc_expr: /* non access exprs */  
-  | expr DOT ID LPAREN actuals_opt RPAREN { MemberCall($1, $3, $5) }
-  | LPAREN expr RPAREN { $2 }
-  | term               { $1 }
-
-  access_expr:
-  | expr LBRACKET expr RBRACKET { Access($1, $3) }
+  | arith_expr          { $1 }
+  | LPAREN expr RPAREN  { $2 }
   
   
-  term : 
-  | term PLUS   term { Binop($1, add,   $3) }
-  | term MINUS  term { Binop($1, sub,   $3) }
-  | term TIMES  term { Binop($1, mult,  $3) }
-  | term DIVIDE term { Binop($1, div,   $3) }
-  | term MOD term { Binop($1, Mod,   $3) }
+  arith_expr : 
+  | arith_expr PLUS   arith_expr { Binop($1, add,   $3) }
+  | arith_expr MINUS  arith_expr { Binop($1, sub,   $3) }
+  | arith_expr TIMES  arith_expr { Binop($1, mult,  $3) }
+  | arith_expr DIVIDE arith_expr { Binop($1, div,   $3) }
+  | arith_expr MOD arith_expr    { Binop($1, Mod,   $3) }
   | atom             { $1 }
   
   atom:
-  | LXM              { LITERAL($1) }
-  | TRUE             { Boolean(True) }
-  | FALSE            { Boolean(False) }
-  | lit               { Id($1) }
+  | literal          { $1 }
+  | TRUE             { Bool(True) }
+  | FALSE            { Bool(False) }
+  | ID               { Id($1) }

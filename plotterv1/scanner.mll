@@ -51,8 +51,8 @@ rule token = parse
 | "return" { RETURN }
 | "true" { TRUE }
 | "false"  { FALSE }
-| ['0'-'9']+('.')?['0'-'9']* as lxm { LITERAL(float_of_string lit) } (*Change to add negative*)
-| ['"'][^'"']*['"'] as lit { STR(lit) }
+| ['0'-'9']+('.')?['0'-'9']* as lxm { LIT_NUM(float_of_string lit) } (*Change to add negative*)
+| ['"'][^'"']*['"'] as lit { LIT_STR(lit) }
 | ['A'-'Z' 'a'-'z']+['A'-'Z' 'a'-'z' '0'-'9']* as lit { ID(lit) }
 | eof { EOF }
 | _  {raise (Failure("illegal character"))}
