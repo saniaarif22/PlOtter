@@ -1,7 +1,7 @@
 open Ast
 module StringMap = Map.Make(String)
 
-let convert (contexts, finds, varmap) =
+let convert (stmt_list) =
   let rec create_expr = function
       | Ast.Literal_Num(l) -> string_of_float l
       | Ast.Literal_Str(l) -> l
@@ -22,7 +22,7 @@ let convert (contexts, finds, varmap) =
    in
    
    let rec create_stmt = function
-   	   | Ast.Expr(expr) -> string_of_expr expr ^ "\n"
+   	   | Ast.Expr(expr) -> create_expr expr ^ "\n"
    	   | Ast.Var_Decl(tp, id) -> tp ^ " " ^ id ^ "\n"
    	   | Ast.Assign(v, e) -> v ^ " = " ^ ( string_of_expr e ) ^ "\n"
    	   | Ast.Print(e) -> "print " ^ string_of_expr e ^ "\n"
@@ -30,4 +30,7 @@ let convert (contexts, finds, varmap) =
 
    in
 
-   "#include <iostream>\n#include<filestream>\nusing namespace std;\nstream f;"
+   "#include <iostream>\n#include<filestream>\nusing namespace std;\nstream f;\n" ^
+   "int main(){\n" ^
+   String.concat "" (List.map create_stmt stmt_list) ^
+   "return 0;\n}\n"
