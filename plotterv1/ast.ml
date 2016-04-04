@@ -33,7 +33,7 @@ type program = stmt list
 
 let rec string_of_expr = function
     Literal_Num(l) -> string_of_float l
-  | Literal_Str(l) -> l
+  | Literal_Str(l) -> "\"" ^ l ^ "\""
   | Id(s) -> s
   | Binop(e1, o, e2) ->
       string_of_expr e1 ^ " " ^
