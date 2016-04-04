@@ -3,7 +3,7 @@ open Ast
 let convert (stmt_list) =
   let rec create_expr = function
       | Ast.Literal_Num(l) -> string_of_float l
-      | Ast.Literal_Str(l) -> l
+      | Ast.Literal_Str(l) -> "\"" ^ l ^ "\""
       | Ast.Id(s) -> s
       | Ast.Binop(e1, o, e2) -> 
       			create_expr e1 ^ " " ^
