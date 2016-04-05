@@ -3,7 +3,7 @@ open Ast
 let convert (stmt_list) =
   let rec create_expr = function
       | Ast.Literal_Num(l) -> string_of_float l
-      | Ast.Literal_Str(l) -> "\"" ^ l ^ "\""
+      | Ast.Literal_Str(l) -> l 
       | Ast.Id(s) -> s
       | Ast.Binop(e1, o, e2) -> 
       			create_expr e1 ^ " " ^
@@ -28,33 +28,35 @@ let convert (stmt_list) =
                 | "string" -> "string"
                 | _ -> "bool"
             ) ^ " " ^ id ^ ";\n"
-   	   | Ast.Assign(v, e) -> v ^ " = " ^ ( create_expr e ) ^ "\n"
+   	   | Ast.Assign(v, e) -> create_expr v ^ " = " ^ ( create_expr e ) ^ "\n"
    	   | Ast.Print(e) -> "put_in_svg( " ^ create_expr e ^ ");\n"
    	   | Ast.Return(expr) -> "return " ^ create_expr expr ^ ";\n"
 
    in
    
-    "#include <iostream>\n#include <fstream>" ^
-    "using namespace std;"^
+    "#include <iostream>\n#include <fstream>\n" ^
+    "using namespace std;\n"^
 
-    "ofstream f;"^
-    "// SVG content"^
-    "void put_in_svg(std::string content) "^
-    "{"^
-    "  f << \"<text x='250' y='150'>\n\";"^
-    "  f << content;"^
-    "  f << \"\\n</text>\n\";"^
-    "}"^
+    "ofstream f;\n"^
+    "// SVG content\n"^
+    "void put_in_svg(std::string content)\n"^
+    "{\n"^
+    "  f << \"<text x='250' y='150'>\\n\";\n"^
+    "  f << content;\n"^
+    "  f << \"\\n</text>\\n\";\n"^
+    "}\n"^
 
-    "// Read input and generate SVG image"^
+    "// Read input and generate SVG image\n"^
 
-    "int main() {"^
+    "int main() {\n"^
     (* change the name to be the filename.svg based on the file which is ran *)
-    "  f.open (\"hello.svg\");"^
+    "  f.open (\"hello.svg\");\n"^
 
-    "  // Prolog for the SVG image"^
-    "  f << \"<svg xmlns=\\\"http://www.w3.org/2000/svg\\\" xmlns:xlink=\\\"http://www.w3.org/1999/xlink\\\"> width=\\\"1024\\\" height=\\\"768\\\"\"; " ^
-    "  f << \"\\n\"; "^
+    "  // Prolog for the SVG image\n"^
+    "  f << \"<svg xmlns=\\\"http://www.w3.org/2000/svg\\\" xmlns:xlink=\\\"http://www.w3.org/1999/xlink\\\" width=\\\"1024\\\" height=\\\"768\\\">\"; \n"^
+    "  f << \"\\n\"; \n"^
 
    String.concat "" (List.map create_stmt stmt_list) ^
+
+    "  f << \"</svg>\"; \n" ^
    "return 0;\n}\n"

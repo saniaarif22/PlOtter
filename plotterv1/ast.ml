@@ -21,7 +21,7 @@ type expr =
 type stmt = (* Statements *)
     Expr of expr
   | Var_Decl of string * string         (* (type, id) *)
-  | Assign of string * expr             (* a = 2 *)
+  | Assign of expr * expr             (* a = 2 *)
   | Print of expr                       (* print 5 *)
   | Return of expr
   
@@ -52,7 +52,7 @@ let rec string_of_expr = function
 let rec string_of_stmt = function
     Expr(expr) -> string_of_expr expr ^ "\n"
   | Var_Decl(tp, id) -> tp ^ " " ^ id ^ "\n"
-  | Assign(v, e) -> v ^ " = " ^ ( string_of_expr e ) ^ "\n"
+  | Assign(v, e) -> string_of_expr v ^ " = " ^ ( string_of_expr e ) ^ "\n"
   | Print(e) -> "print " ^ string_of_expr e ^ "\n"
   | Return(expr) -> "return " ^ string_of_expr expr ^ "\n"
 

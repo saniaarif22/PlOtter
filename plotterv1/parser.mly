@@ -42,14 +42,14 @@ code:
    ============================================= */
    
    /* No locals. as variables can be declared at any point */
-   fdecl:
+   /*fdecl:
         FN ID LPAREN formals_opt RPAREN COLON EOL stmt_list END
         { { fname = $2;
             formals = $4;
             body = List.rev $8 } }
     
     formals_opt:
-        /* nothing */ { [] }
+         { [] }
         | formal_list { List.rev $1 }
      
     formal_list:
@@ -57,7 +57,7 @@ code:
         | formal_list COMMA formal { $3 :: $1 }
 
     formal:
-        data_type ID    { ($1, $2) }
+        data_type ID    { ($1, $2) }*/
     
 /* =============================================
                     Variable     
@@ -99,11 +99,11 @@ code:
    ============================================= */
 
     stmt:
-        | func_stmt  { $1 }
         | other_stmt { $1 }
+        /*| func_stmt  { $1 } */
     
-    func_stmt:
-        | fdecl { $1 }
+    /*func_stmt:
+        | fdecl { $1 }*/
     
     other_stmt:
         | expr EOL           { Expr($1) }
@@ -114,11 +114,11 @@ code:
         | vdecl EOL          { $1 }
         
     other_stmt_list:
-        /* nothing */ { [] }
+        { [] }
         | other_stmt_list other_stmt { $2 :: $1 }
     
     stmt_list:
-        /* nothing */  { [] }
+         { [] }
         | stmt_list stmt { $2 :: $1 }
         
     
@@ -145,10 +145,10 @@ code:
   
   
   arith_expr : 
-  | arith_expr PLUS   arith_expr { Binop($1, add,   $3) }
-  | arith_expr MINUS  arith_expr { Binop($1, sub,   $3) }
-  | arith_expr TIMES  arith_expr { Binop($1, mult,  $3) }
-  | arith_expr DIVIDE arith_expr { Binop($1, div,   $3) }
+  | arith_expr PLUS   arith_expr { Binop($1, Add,   $3) }
+  | arith_expr MINUS  arith_expr { Binop($1, Sub,   $3) }
+  | arith_expr TIMES  arith_expr { Binop($1, Mul,  $3) }
+  | arith_expr DIVIDE arith_expr { Binop($1, Div,   $3) }
   | arith_expr MOD arith_expr    { Binop($1, Mod,   $3) }
   | atom             { $1 }
   
