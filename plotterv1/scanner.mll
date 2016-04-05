@@ -3,7 +3,7 @@
 rule token = parse
   [' ' '\t' '\r'] { token lexbuf } (*whitespace*)
 (*punctuations*)
-| ['\n'] { EOL }
+| '\n' { EOL }
 | "*/" { token lexbuf }
 | '+' { PLUS } (*operators*)
 | '-' { MINUS }
@@ -51,7 +51,7 @@ rule token = parse
 | "return" { RETURN }
 | "true" { TRUE }
 | "false"  { FALSE }
-| ['0'-'9']+('.')?['0'-'9']* as lxm { LIT_NUM(float_of_string lxm) } (*Change to add negative*)
+| '-'?(['0'-'9']+('.'['0'-'9']*)?) as lxm { LIT_NUM(float_of_string lxm) } (*Change to add negative*)
 | ['"'][^'"']*['"'] as str { LIT_STR(str) }
 | ['A'-'Z' 'a'-'z']+['A'-'Z' 'a'-'z' '0'-'9']* as i { ID(i) }
 | eof { EOF }

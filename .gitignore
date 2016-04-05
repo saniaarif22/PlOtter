@@ -1,6 +1,6 @@
-**.cmi
 **.cmo
-**.mli
-**.log
-**microc
-*DS_Store
+**.cmi
+parser.ml
+parser.mli
+scanner.ml
+**.out

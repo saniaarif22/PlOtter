@@ -78,7 +78,7 @@ code:
         /* Point, List and hash are to be added here */
         
     vdecl:
-        | primitive_var_decl EOL { $1 }
+        | primitive_var_decl { $1 }
     
     primitive_var_decl:
         | primitive ID  { Var_Decl($1, $2) }

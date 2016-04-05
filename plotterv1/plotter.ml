@@ -8,5 +8,5 @@ let _ =
   let lexbuf = Lexing.from_channel stdin in
   let program = Parser.program Scanner.token lexbuf in
   match action with
-    Ast -> print_string (Ast.string_of_program program)
-  | Codegen -> print_string (Codegen.convert program)
+    Ast -> print_string (Ast.string_of_program (List.rev program))
+  | Codegen -> print_string (Codegen.convert (List.rev program))

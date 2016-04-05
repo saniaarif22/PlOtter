@@ -28,7 +28,7 @@ let convert (stmt_list) =
                 | "string" -> "string"
                 | _ -> "bool"
             ) ^ " " ^ id ^ ";\n"
-   	   | Ast.Assign(v, e) -> create_expr v ^ " = " ^ ( create_expr e ) ^ "\n"
+   	   | Ast.Assign(v, e) -> create_expr v ^ " = " ^ ( create_expr e ) ^ ";\n"
    	   | Ast.Print(e) -> "put_in_svg( " ^ create_expr e ^ ");\n"
    	   | Ast.Return(expr) -> "return " ^ create_expr expr ^ ";\n"
 
