@@ -2,7 +2,7 @@ open Ast
 
 let convert (stmt_list) =
   let rec create_expr = function
-      | Ast.Literal_Num(l) -> string_of_float l
+      | Ast.Literal_Num(l) -> (string_of_float l) ^ "0"
       | Ast.Literal_Str(l) -> l 
       | Ast.Id(s) -> s
       | Ast.Binop(e1, o, e2) -> 
@@ -40,6 +40,13 @@ let convert (stmt_list) =
     "ofstream f;\n"^
     "// SVG content\n"^
     "void put_in_svg(std::string content)\n"^
+    "{\n"^
+    "  f << \"<text x='250' y='150'>\\n\";\n"^
+    "  f << content;\n"^
+    "  f << \"\\n</text>\\n\";\n"^
+    "}\n"^
+
+    "void put_in_svg(float content)\n"^
     "{\n"^
     "  f << \"<text x='250' y='150'>\\n\";\n"^
     "  f << content;\n"^
