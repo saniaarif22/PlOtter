@@ -14,7 +14,7 @@ rule token = parse
 | "<=" { LEQ }
 | "==" { EQUAL }
 | "!=" { NEQ }
-| "**" { SQUARE }
+(*| "**" { SQUARE }*)
 | '>' { GREATER }
 | '<' { LESS }
 | '(' { LPAREN }
@@ -23,11 +23,11 @@ rule token = parse
 | ']' { RBRACK }
 | ',' { COMMA }
 | '#' { COMMENT }
-| '.' { OF }
+(*| '.' { OF }*)
 | '=' { ASSIGN }
 | "and" { AND }
 | "or" { OR }
-| "in" { IN }
+(*| "in" { IN }*)
 | "not" { NOT }
 | ';'  { SEMI }
 | ':'  { COLON }
@@ -51,9 +51,9 @@ rule token = parse
 | "return" { RETURN }
 | "true" { TRUE }
 | "false"  { FALSE }
-| ['0'-'9']+('.')?['0'-'9']* as lxm { LIT_NUM(float_of_string lit) } (*Change to add negative*)
-| ['"'][^'"']*['"'] as lit { LIT_STR(lit) }
-| ['A'-'Z' 'a'-'z']+['A'-'Z' 'a'-'z' '0'-'9']* as lit { ID(lit) }
+| ['0'-'9']+('.')?['0'-'9']* as lxm { LIT_NUM(float_of_string lxm) } (*Change to add negative*)
+| ['"'][^'"']*['"'] as str { LIT_STR(str) }
+| ['A'-'Z' 'a'-'z']+['A'-'Z' 'a'-'z' '0'-'9']* as i { ID(i) }
 | eof { EOF }
 | _  {raise (Failure("illegal character"))}
 
