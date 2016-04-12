@@ -4,3 +4,5 @@ parser.ml
 parser.mli
 scanner.ml
 **.out
+src/plotter
+*.DS_Store
