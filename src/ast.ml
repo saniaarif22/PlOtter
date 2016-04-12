@@ -8,6 +8,7 @@ type  ops =
 type bool =
         | True | False
 
+type t = Num | Bool | String 
 
 (*expressions*)
 type expr = 
