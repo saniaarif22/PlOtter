@@ -12,8 +12,8 @@ Steps to Run:
 
   - Write a program in plotter and save it as <program_name>.plt
 
-  - To print compile & get output 
-  > ./plotter < prg_name.plt > prg_name.cpp
+  - Compile the plt program to generate a C++ program
+  > ./plotter < <program_name>.plt > <program_name>.cpp
 
   - Compile the C++ program created by the plotter compiler
   > g++ prg_name.cpp
