@@ -15,10 +15,10 @@ Steps to Run:
   - Compile the plt program to generate a C++ program
   > ./plotter < <program_name>.plt > <program_name>.cpp
 
-  - Compile the C++ program created by the plotter compiler
+  - Compile the C++ program
   > g++ prg_name.cpp
   
-  - Running the executable then generates the output SVG 'hello.svg'
+  - Run the executable which then generates a SVG 'hello.svg' as output
   > ./a.out
 
   - Open the svg using a browser to view
