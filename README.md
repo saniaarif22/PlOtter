@@ -1,20 +1,24 @@
 # PlOtter
 
-    The source files are located in the src/ folder. 
+    The source files are located in src/
     
-Steps to Run
-------------
+Steps to Run:
 
-  - cd to src/ folder
-  - Make the files
+  - Navigate to the src/ folder
+  > cd src
+  
+  - Run the make file
   > make
-  - write the program in plotter & save it as prg_name.plt
 
-  - To print compile & get output 
-  > ./plotter < prg_name.plt > prg_name.cpp
+  - Write a program in plotter and save it as <program_name>.plt
 
-  - Compile the C++ program created by the plotter compiler
+  - Compile the plt program to generate a C++ program
+  > ./plotter < <program_name>.plt > <program_name>.cpp
+
+  - Compile the C++ program
   > g++ prg_name.cpp
   
-  - Running the executable then generates the output SVG
+  - Run the executable which then generates a SVG 'hello.svg' as output
   > ./a.out
+
+  - Open the svg using a browser to view
