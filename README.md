@@ -16,5 +16,7 @@ Steps to Run
   - Compile the C++ program created by the plotter compiler
   > g++ prg_name.cpp
   
-  - Running the executable then generates the output SVG
+  - Running the executable then generates the output SVG 'hello.svg'
   > ./a.out
+
+  - Open the svg using a browser to view
