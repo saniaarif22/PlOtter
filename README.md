@@ -5,11 +5,12 @@
 Steps to Run:
 
   - Navigate to the src/ folder
+  > cd src
   
   - Run the make file
   > make
 
-  - write the program in plotter & save it as prg_name.plt
+  - Write a program in plotter and save it as <program_name>.plt
 
   - To print compile & get output 
   > ./plotter < prg_name.plt > prg_name.cpp
