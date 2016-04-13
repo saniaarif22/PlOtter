@@ -1,13 +1,14 @@
 # PlOtter
 
-    The source files are located in the src/ folder. 
+    The source files are located in src/
     
-Steps to Run
-------------
+Steps to Run:
 
-  - cd to src/ folder
-  - Make the files
+  - Navigate to the src/ folder
+  
+  - Run the make file
   > make
+
   - write the program in plotter & save it as prg_name.plt
 
   - To print compile & get output 
