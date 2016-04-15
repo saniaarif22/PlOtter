@@ -1,4 +1,7 @@
+
 open Ast
+
+type t = Num | Bool | String
 
 type texpr =
 			Literal_Num of float * t               
@@ -24,9 +27,10 @@ let typeof t =
         | Bool -> "bool"
         | String -> "string"
 
+
 let rec string_of_texpr = function
     Literal_Num(l, t) -> string_of_float l ^ typeof t
-  | Literal_Str(l, t) -> "\"" ^ l ^ "\"" ^ typeof t
+  | Literal_Str(l, t) -> l ^ typeof t
   | Id(s, t) -> s ^ typeof t
   | Binop(e1, o, e2, t) ->
       string_of_texpr e1 ^ " " ^
@@ -46,8 +50,8 @@ let rec string_of_tstmt = function
     Expr(expr, t) -> string_of_texpr expr ^ "\n" ^ typeof t
   | Var_Decl(tp, id, t) -> tp ^ " " ^ id ^ "\n" ^ typeof t
   | Assign(v, e) -> string_of_texpr v ^ " = " ^ ( string_of_texpr e ) ^ "\n"
-  | Print(e) -> "print " ^ string_of_texpr e ^ "\n"
+  | Print(e) -> "print " ^ string_of_texpr e ^ "\n" 
   | Return(expr) -> "return " ^ string_of_texpr expr ^ "\n"
 
-let string_of_program stmts =
-  String.concat "\n" (List.map string_of_stmt stmts)
+let string_of_tprogram stmts =
+  String.concat "\n" (List.map string_of_tstmt stmts)
