@@ -1,4 +1,4 @@
-OBJS = ast.cmo parser.cmo scanner.cmo codegen.cmo plotter.cmo
+OBJS = ast.cmo sast.cmo parser.cmo scanner.cmo codegen.cmo plotter.cmo
 
 TARFILES = Makefile  scanner.mll parser.mly \
 	ast.ml codegen.ml plotter.ml
@@ -26,15 +26,15 @@ clean :
 
 # 
 ast.cmo: 
-ast.cmx: 
-bytecode.cmo: ast.cmo 
-bytecode.cmx: ast.cmx 
-compile.cmo:  ast.cmo 
-compile.cmx:  ast.cmx 
+ast.cmx:
+sast.cmo:
+sast.cmx:
+codegen.cmo:  ast.cmo 
+codegen.cmx:  ast.cmx 
 plotter.cmo: scanner.cmo parser.cmi codegen.cmo \
     ast.cmo 
 plotter.cmx: scanner.cmx parser.cmx codegen.cmx \
-    bytecode.cmx ast.cmx 
+    sast.cmx ast.cmx 
 parser.cmo: ast.cmo parser.cmi 
 parser.cmx: ast.cmx parser.cmi 
 scanner.cmo: parser.cmi 
