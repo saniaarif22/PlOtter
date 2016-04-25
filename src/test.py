@@ -2,7 +2,7 @@ import sys
 import os
 
 #Test files list
-testFiles = ['hello','sum','vdecl']
+testFiles = ['hello','sum','vdecl'] #change to automatically read files from folder
 #If user gives a specific set of files from command line
 if len(sys.argv)>1:
 	testFiles = sys.argv[1:]
