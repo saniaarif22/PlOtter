@@ -30,5 +30,6 @@ for file in testFiles:
 	f.close()
 	if len(s)>0:
 		print '**** FAILED for file '+file
+		print s
 	else:
 		print 'PASSED for --  '+file

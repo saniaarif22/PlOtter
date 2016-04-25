@@ -1,6 +1,8 @@
 open Ast
+open Semcheck
 
 let convert (stmt_list) =
+  check stmt_list;
   let rec create_expr = function
       | Ast.Literal_Num(l) -> (string_of_float l) ^ "0"
       | Ast.Literal_Str(l) -> l 

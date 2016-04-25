@@ -5,13 +5,27 @@ module StringMap = Map.Make(String)
 
 type s_env = 
         {      var_types :  string StringMap.t ref list;
-               var_inds : string StringMap.t ref list;
+               var_inds : int StringMap.t ref list;
         }
     
-let check stmts=  
+let check stmts =  
 
-    let fail msg = raise (Failure msg)
+    let fail msg = (* raise (Failure msg) *)
+                    print_string "Error : ";
+                    print_string msg;
+                    print_string "\n";
+                    exit 0
     in
+    
+    let find_max_index map = 
+        let bindings = StringMap.bindings map in
+        let rec max cur = function
+            | [] -> cur
+            | hd :: tl -> if snd hd > cur then max (snd hd) tl else max cur tl
+        in
+        max 0 bindings
+    in
+    
     let type_to_str t = match t with 
         | Sast.Num -> "num"
         | Sast.String -> "string"
@@ -27,7 +41,7 @@ let check stmts=
     let find_var var map_list =
         let rec finder var = function
             | m :: tl -> 
-                (try str_to_type (StringMap.find var !m)
+                (try (StringMap.find var !m)
                  with
                  | Not_found -> finder var tl)
             | [] -> raise (Not_found )
@@ -67,7 +81,14 @@ let check stmts=
                 (* uses find_var to determine the type of id *)
                 (try
                     (*let tp = str_to_type (find_var v env.var_types) in *)
-                    Sast.Id(v, find_var v env.var_types)
+                    let tp = find_var v env.var_types in
+                    if (tp="num") then
+                        Sast.Id(v, Sast.Num)
+                    else
+                        if (tp="string") then
+                            Sast.Id(v,Sast.String)
+                        else
+                            Sast.Id(v, Sast.Bool)
                  with
                  | Not_found -> fail ("undeclared variable: " ^ v)
                 )
@@ -146,7 +167,14 @@ let check stmts=
                             (List.hd env.var_inds) := StringMap.add id (find_max_index !(List.hd env.var_inds)+1) !(List.hd env.var_inds); 
                       | Failure(f) -> raise (Failure (f) ) 
                 );
-                Sast.Var_Decl(dt, id, str_to_type dt)
+                let tp = find_var id env.var_types in
+                if (tp="num") then
+                        Sast.Var_Decl(dt, id, Sast.Num)
+                    else
+                        if (tp="string") then
+                            Sast.Var_Decl(dt, id, Sast.String)
+                        else
+                            Sast.Var_Decl(dt, id, Sast.Bool)
             | Ast.Print(e) -> Sast.Print(expr env e)
             | Ast.Return(e) -> Sast.Return(expr env e)
             
