@@ -26,10 +26,15 @@ let convert (stmt_list) =
    	   | Ast.Expr(expr) -> create_expr expr ^ ";\n"
    	   | Ast.Var_Decl(tp, id) -> 
             (match tp with
-                  "num" -> "float"
-                | "string" -> "string"
-                | _ -> "bool"
-            ) ^ " " ^ id ^ ";\n"
+                  "num" -> "float" ^ " " ^ id ^ ";\n"
+                | "string" -> "string" ^ " " ^ id ^ ";\n"
+                | "point" -> "float" ^ " " ^ id ^ "[2];\n"
+                | _ -> "bool" ^ " " ^ id ^ ";\n"
+            ) 
+   	   | Ast.Passign(v, e1, e2) -> 
+            (* Setting the point elements seperately *)
+            create_expr v ^ "[0] = " ^ ( create_expr e1 ) ^ ";\n" ^ 
+            create_expr v ^ "[1] = " ^ ( create_expr e2 ) ^ ";\n"
    	   | Ast.Assign(v, e) -> create_expr v ^ " = " ^ ( create_expr e ) ^ ";\n"
    	   | Ast.Print(e) -> "put_in_svg( " ^ create_expr e ^ ");\n"
    	   | Ast.Return(expr) -> "return " ^ create_expr expr ^ ";\n"

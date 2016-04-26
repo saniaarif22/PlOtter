@@ -72,6 +72,7 @@ code:
         | BOOL      {"bool"}
         | NUM       {"num"}
         | STRING    {"string"}
+        | POINT     {"point"}
     
     data_type:
         | primitive { $1 }
@@ -108,6 +109,7 @@ code:
     other_stmt:
         | expr EOL           { Expr($1) }
         | log_expr EOL       { Expr($1) }
+        | ID ASSIGN LPAREN expr COMMA expr RPAREN EOL { Passign(Id($1),$4,$6)}
         | ID ASSIGN expr EOL { Assign(Id($1), $3) }
         | PRINT expr EOL     { Print($2) }
         | RETURN expr EOL    { Return($2) }

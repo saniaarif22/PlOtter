@@ -1,7 +1,7 @@
 
 open Ast
 
-type t = Num | Bool | String
+type t = Num | Bool | String | Point
 
 type texpr =
 			Literal_Num of float * t               
@@ -13,6 +13,7 @@ type texpr =
 type tstmt =
     Expr of texpr * t
   | Var_Decl of string * string * t         
+  | Passign of texpr * texpr * texpr             
   | Assign of texpr * texpr             
   | Print of texpr                     
   | Return of texpr
@@ -26,6 +27,7 @@ let typeof t =
         | Num -> "num"
         | Bool -> "bool"
         | String -> "string"
+        | Point -> "point"
 
 
 let rec string_of_texpr = function
@@ -49,6 +51,7 @@ let rec string_of_texpr = function
 let rec string_of_tstmt = function
     Expr(expr, t) -> string_of_texpr expr ^ "\n" ^ typeof t
   | Var_Decl(tp, id, t) -> tp ^ " " ^ id ^ "\n" ^ typeof t
+  | Passign(v, e1, e2) -> string_of_texpr v ^ " = (" ^ ( string_of_texpr e1 ) ^ "," ^ ( string_of_texpr e2 ) ^ ")\n"
   | Assign(v, e) -> string_of_texpr v ^ " = " ^ ( string_of_texpr e ) ^ "\n"
   | Print(e) -> "print " ^ string_of_texpr e ^ "\n" 
   | Return(expr) -> "return " ^ string_of_texpr expr ^ "\n"

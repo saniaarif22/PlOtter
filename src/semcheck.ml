@@ -30,12 +30,14 @@ let check stmts =
         | Sast.Num -> "num"
         | Sast.String -> "string"
         | Sast.Bool -> "bool" 
+        | Sast.Point -> "point" 
     in
     
     let str_to_type str_typ = function
         | "num" -> Sast.Num
         | "string" -> Sast.String
         | "bool" -> Sast.Bool
+        | "point" -> Sast.Point
     in
     (* Setting Environment for Sast *)
     let find_var var map_list =
@@ -88,7 +90,10 @@ let check stmts =
                         if (tp="string") then
                             Sast.Id(v,Sast.String)
                         else
-                            Sast.Id(v, Sast.Bool)
+                            if (tp="point") then
+                                Sast.Id(v,Sast.Point)
+                            else
+                                Sast.Id(v, Sast.Bool)
                  with
                  | Not_found -> fail ("undeclared variable: " ^ v)
                 )
@@ -151,6 +156,16 @@ let check stmts =
                 let se = expr env e in
                 let tp = typeof se in
                 Sast.Expr(se, tp)
+            | Ast.Passign(v,e1,e2) -> 
+                let sv = expr env v in
+                let se1 = expr env e1 in
+                let se2 = expr env e2 in
+                let tv = typeof sv in
+                let te1 = typeof se1 in
+                let te2 = typeof se2 in
+                if ( tv = Sast.Point && te2 = Sast.Num && te1 = Sast.Num )
+                    then Sast.Passign(sv, se1, se2)
+                else fail ("Invalid type assign. cannot assign " ^ (type_to_str te1) ^ "," ^ (type_to_str te2)  ^ " to type " ^ (type_to_str tv))
             | Ast.Assign(v,e) -> 
                 let sv = expr env v in
                 let se = expr env e in
