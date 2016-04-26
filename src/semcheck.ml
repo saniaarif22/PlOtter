@@ -63,7 +63,7 @@ let check stmts =
 
     
     
-    let typeof line = match line with
+    let typeof elem = match elem with
         | Sast.Literal_Num(_,t) -> t
         | Sast.Literal_Str(_,t) -> t
         | Sast.Binop(_,_,_,t) -> t
@@ -191,6 +191,27 @@ let check stmts =
                         else
                             Sast.Var_Decl(dt, id, Sast.Bool)
             | Ast.Print(e) -> Sast.Print(expr env e)
+            | Ast.LineVar(e1, e2) -> 
+                let se1 = expr env e1 in
+                let se2 = expr env e2 in
+                let te1 = typeof se1 in
+                let te2 = typeof se2 in
+                if( te1 = Sast.Point && te2 = Sast.Point )
+                then Sast.LineVar(se1, se2)
+                else fail ("LineVar has to be called with 2 points")
+            | Ast.LineRaw(e1, e2, e3, e4) ->
+                let se1 = expr env e1 in
+                let se2 = expr env e2 in
+                let se3 = expr env e3 in
+                let se4 = expr env e4 in
+                let te1 = typeof se1 in
+                let te2 = typeof se2 in
+                let te3 = typeof se3 in
+                let te4 = typeof se4 in
+                if( te1 = Sast.Num && te2 = Sast.Num && te3 = Sast.Num && te4 = Sast.Num )
+                then Sast.LineRaw(se1, se2, se3, se4)
+                else fail ("LineRaw has to be called with 4 nums")
+
             | Ast.Return(e) -> Sast.Return(expr env e)
             
         in

@@ -9,6 +9,7 @@
 %token TRUE FALSE
 %token RETURN IF ELSE FOR WHILE END BREAK CONTINUE THEN FN
 %token PRINT
+%token LINE
 %token <float> LIT_NUM
 %token <string> LIT_STR
 %token <string> ID
@@ -112,8 +113,13 @@ code:
         | ID ASSIGN LPAREN expr COMMA expr RPAREN EOL { Passign(Id($1),$4,$6)}
         | ID ASSIGN expr EOL { Assign(Id($1), $3) }
         | PRINT expr EOL     { Print($2) }
+        | line EOL           {$1}
         | RETURN expr EOL    { Return($2) }
         | vdecl EOL          { $1 }
+
+    line:
+        | LINE LPAREN literal COMMA literal RPAREN  { LineVar($3, $5) }
+        | LINE LPAREN LPAREN expr COMMA expr RPAREN COMMA LPAREN expr COMMA expr RPAREN RPAREN { LineRaw($4, $6, $10, $12) }
         
     other_stmt_list:
         { [] }

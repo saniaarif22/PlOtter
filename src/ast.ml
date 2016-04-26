@@ -25,6 +25,8 @@ type stmt = (* Statements *)
   | Passign of expr * expr * expr          (* (type, p1, p2) *)
   | Assign of expr * expr                  (* a = 2 *)
   | Print of expr                          (* print 5 *)
+  | LineVar of expr * expr                 (* line(p,q) *)
+  | LineRaw of expr * expr * expr * expr   (* line((3,4), (7,9)) *)
   | Return of expr
   
   
@@ -57,6 +59,8 @@ let rec string_of_stmt = function
   | Passign(v, e1, e2) -> string_of_expr v ^ " = (" ^ ( string_of_expr e1 ) ^ "," ^ (string_of_expr e2) ^ ")\n"
   | Assign(v, e) -> string_of_expr v ^ " = " ^ ( string_of_expr e ) ^ "\n"
   | Print(e) -> "print " ^ string_of_expr e ^ "\n"
+  | LineVar(e1,e2)-> "line (" ^ string_of_expr e1 ^ "," ^ string_of_expr e2 ^ ")" ^ "\n" 
+  | LineRaw(e1,e2,e3,e4)-> "line ( (" ^ string_of_expr e1 ^ "," ^ string_of_expr e2 ^ ")" ^ "," ^ "(" ^ string_of_expr e3 ^ "," ^ string_of_expr e4 ^ ") )\n" 
   | Return(expr) -> "return " ^ string_of_expr expr ^ "\n"
 
 let string_of_program stmts =

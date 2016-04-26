@@ -37,6 +37,8 @@ let convert (stmt_list) =
             create_expr v ^ "[1] = " ^ ( create_expr e2 ) ^ ";\n"
    	   | Ast.Assign(v, e) -> create_expr v ^ " = " ^ ( create_expr e ) ^ ";\n"
    	   | Ast.Print(e) -> "put_in_svg( " ^ create_expr e ^ ");\n"
+       | Ast.LineVar(e1, e2) -> "put_in_svg (" ^ create_expr e1 ^ "," ^ create_expr e2 ^");\n"
+       | Ast.LineRaw(e1, e2, e3, e4) -> "put_in_svg (" ^ create_expr e1 ^ "," ^ create_expr e2 ^ "," ^ create_expr e3 ^ "," ^ create_expr e4 ^");\n"
    	   | Ast.Return(expr) -> "return " ^ create_expr expr ^ ";\n"
 
    in
@@ -46,6 +48,13 @@ let convert (stmt_list) =
 
     "ofstream f;\n"^
     "// SVG content\n"^
+    "void put_in_svg(std::float[] p1)\n"^
+    "{\n"^
+    "  f << \"<text x='250' y='150'>\\n\";\n"^
+    "  f << content;\n"^
+    "  f << \"\\n</text>\\n\";\n"^
+    "}\n"^
+
     "void put_in_svg(std::string content)\n"^
     "{\n"^
     "  f << \"<text x='250' y='150'>\\n\";\n"^

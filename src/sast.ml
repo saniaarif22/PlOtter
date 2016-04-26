@@ -15,7 +15,9 @@ type tstmt =
   | Var_Decl of string * string * t         
   | Passign of texpr * texpr * texpr             
   | Assign of texpr * texpr             
-  | Print of texpr                     
+  | Print of texpr
+  | LineVar of texpr * texpr
+  | LineRaw of texpr * texpr * texpr * texpr                      
   | Return of texpr
 
 type program = tstmt list
@@ -54,6 +56,8 @@ let rec string_of_tstmt = function
   | Passign(v, e1, e2) -> string_of_texpr v ^ " = (" ^ ( string_of_texpr e1 ) ^ "," ^ ( string_of_texpr e2 ) ^ ")\n"
   | Assign(v, e) -> string_of_texpr v ^ " = " ^ ( string_of_texpr e ) ^ "\n"
   | Print(e) -> "print " ^ string_of_texpr e ^ "\n" 
+  | LineVar(e1,e2)-> "line (" ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ")" ^ "\n" 
+  | LineRaw(e1,e2,e3,e4)-> "line ( (" ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ")" ^ "," ^ "(" ^ string_of_texpr e3 ^ "," ^ string_of_texpr e4 ^ ") )\n" 
   | Return(expr) -> "return " ^ string_of_texpr expr ^ "\n"
 
 let string_of_tprogram stmts =
