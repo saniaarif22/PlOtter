@@ -48,13 +48,17 @@ let convert (stmt_list) =
 
     "ofstream f;\n"^
     "// SVG content\n"^
-    "void put_in_svg(std::float[] p1)\n"^
-    "{\n"^
-    "  f << \"<text x='250' y='150'>\\n\";\n"^
-    "  f << content;\n"^
-    "  f << \"\\n</text>\\n\";\n"^
+    
+    "void put_in_svg(float p1[], float p2[])\n"^
+    "{"^
+    "  f << \"<line x1='\" + to_string(p1[0]) + \"' y1='\"+  to_string(p1[1])+\"' x2='\"+ to_string(p2[0]) +\"' y2='\"+ to_string(p2[1]) +\"' style='stroke:rgb(255,0,0);stroke-width:1'/>\\n\"; \n" ^
     "}\n"^
-
+    
+    "void put_in_svg(float x1, float y1, float x2, float y2)\n"^
+    "{"^
+    "  f << \"<line x1='\" + to_string(x1) + \"' y1='\"+  to_string(y1)+\"' x2='\"+ to_string(x2) +\"' y2='\"+ to_string(y2) +\"' style='stroke:rgb(255,0,0);stroke-width:1'/>\\n\"; \n" ^
+    "}\n"^
+    
     "void put_in_svg(std::string content)\n"^
     "{\n"^
     "  f << \"<text x='250' y='150'>\\n\";\n"^

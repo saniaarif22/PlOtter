@@ -118,7 +118,7 @@ code:
         | vdecl EOL          { $1 }
 
     line:
-        | LINE LPAREN literal COMMA literal RPAREN  { LineVar($3, $5) }
+        | LINE LPAREN ID COMMA ID RPAREN  { LineVar(Id($3), Id($5) )}
         | LINE LPAREN LPAREN expr COMMA expr RPAREN COMMA LPAREN expr COMMA expr RPAREN RPAREN { LineRaw($4, $6, $10, $12) }
         
     other_stmt_list:
