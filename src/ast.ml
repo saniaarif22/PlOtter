@@ -18,13 +18,9 @@ type expr =
   | Id of string                        (* identifiers *)
   | Bool of bool                        (* True *)
 
-
-type stmt = 
-  | other_stmt of 
-  | 
   
 
-type other_stmt = (* Statements *)
+type stmt = (* Statements *)
     Expr of expr
   | Var_Decl of string * string             (* (type, id) *)
   | Passign of expr * expr * expr           (* (type, p1, p2) *)
