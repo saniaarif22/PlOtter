@@ -127,6 +127,7 @@ code:
 
     loop:
         | FOR assign_stmt SEMI log_expr SEMI assign_stmt COLON EOL other_stmt_list END { For($2, $4, $6, $9) }
+        | WHILE log_expr COLON EOL other_stmt_list END {While($2, $5)}
         
     other_stmt_list:
         { [] }

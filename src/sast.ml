@@ -18,7 +18,8 @@ type tstmt =
   | Print of texpr
   | LineVar of texpr * texpr
   | LineRaw of texpr * texpr * texpr * texpr
-  | For of tstmt * texpr * tstmt * tstmt list                      
+  | For of tstmt * texpr * tstmt * tstmt list
+  | While of texpr * tstmt list                      
   | Return of texpr
 
 type program = tstmt list
@@ -63,6 +64,7 @@ let rec string_of_tstmt = function
   | For(s1, e1, s2, body) -> "for " ^ string_of_tstmt s1 ^ " ; " ^ string_of_texpr e1 ^ " ; " ^ string_of_tstmt s2 ^ ": \n" 
                             ^ ( String.concat "\n\t" (List.map string_of_tstmt body) )
                             ^ "\nend\n"
+  | While(e, body) -> "while " ^ string_of_texpr e ^ " :\n" ^ (String.concat "\n\t" (List.map string_of_tstmt body)) ^ "\nend\n"
   | Return(expr) -> "return " ^ string_of_texpr expr ^ "\n"
 
 let string_of_tprogram stmts =

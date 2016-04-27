@@ -215,8 +215,10 @@ let check stmts =
                 let ss1 = stmt env s1 in
                 let se1 = expr env e1 in
                 let ss2 = stmt env s2 in
-                 
                 Sast.For(ss1, se1, ss2, List.map (fun s -> stmt env s) body)
+            | Ast.While(e, body) ->
+                let se = expr env e in
+                Sast.While(se, List.map (fun s -> stmt env s) body)
             | Ast.Return(e) -> Sast.Return(expr env e)
             
         in

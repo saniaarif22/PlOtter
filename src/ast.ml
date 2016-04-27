@@ -29,6 +29,7 @@ type stmt = (* Statements *)
   | LineVar of expr * expr                  (* line(p,q) *)
   | LineRaw of expr * expr * expr * expr    (* line((3,4), (7,9)) *)
   | For of stmt * expr * stmt * stmt list   (* for i=0; i<5; i=i+1: *)
+  | While of expr * stmt list
   | Return of expr
   
   
@@ -67,6 +68,7 @@ let rec string_of_stmt = function
   | For(s1, e1, s2, body) -> "for " ^ string_of_stmt s1 ^ " ; " ^ string_of_expr e1 ^ " ; " ^ string_of_stmt s2 ^ ": \n" 
                             ^ ( String.concat "\n\t" (List.map string_of_stmt body) )
                             ^ "\nend\n"
+  | While(e, body) -> "while " ^ string_of_expr e ^ " :\n" ^ (String.concat "\n\t" (List.map string_of_stmt body)) ^ "\nend\n"
   | Return(expr) -> "return " ^ string_of_expr expr ^ "\n"
 
 let string_of_program stmts =
