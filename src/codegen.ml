@@ -21,7 +21,9 @@ let convert (stmt_list) =
       | Ast.Bool(x) -> if x = True then "true" else "false"
    
    in
-   
+   let remSemColon s = 
+        Bytes.set s (String.length s - 1) ' '; s
+   in
    let rec create_stmt = function
    	   | Ast.Expr(expr) -> create_expr expr
    	   | Ast.Var_Decl(tp, id) -> 
@@ -41,7 +43,7 @@ let convert (stmt_list) =
        | Ast.LineRaw(e1, e2, e3, e4) -> "put_in_svg (" ^ create_expr e1 ^ "," ^ create_expr e2 
                                       ^ "," ^ create_expr e3 ^ "," ^ create_expr e4 ^");\n"
        | Ast.For(s1, e1, s2, body) -> "for (" ^ create_stmt s1 ^ " " ^ create_expr e1 ^ " ; "
-                                      ^ create_stmt s2 ^ " ) { \n" 
+                                      ^ remSemColon (create_stmt s2 ) ^ " ) { \n" 
                                       ^ String.concat "" (List.map create_stmt body) ^ "\n } \n"
    	   | Ast.Return(expr) -> "return " ^ create_expr expr ^ ";\n"
 
