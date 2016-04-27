@@ -211,7 +211,12 @@ let check stmts =
                 if( te1 = Sast.Num && te2 = Sast.Num && te3 = Sast.Num && te4 = Sast.Num )
                 then Sast.LineRaw(se1, se2, se3, se4)
                 else fail ("LineRaw has to be called with 4 nums")
-
+            | Ast.For(s1, e1, s2, body) ->
+                let ss1 = stmt env s1 in
+                let se1 = expr env e1 in
+                let ss2 = stmt env s2 in
+                 
+                Sast.For(ss1, se1, ss2, List.map (fun s -> stmt env s) body)
             | Ast.Return(e) -> Sast.Return(expr env e)
             
         in

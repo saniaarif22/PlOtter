@@ -110,16 +110,23 @@ code:
     other_stmt:
         | expr EOL           { Expr($1) }
         | log_expr EOL       { Expr($1) }
-        | ID ASSIGN LPAREN expr COMMA expr RPAREN EOL { Passign(Id($1),$4,$6)}
-        | ID ASSIGN expr EOL { Assign(Id($1), $3) }
+        | assign_stmt EOL    { $1 }
         | PRINT expr EOL     { Print($2) }
-        | line EOL           {$1}
+        | line EOL           { $1 }
         | RETURN expr EOL    { Return($2) }
         | vdecl EOL          { $1 }
+        | loop EOL           { $1 }
+
+    assign_stmt:
+        | ID ASSIGN LPAREN expr COMMA expr RPAREN { Passign(Id($1),$4,$6)}
+        | ID ASSIGN expr  { Assign(Id($1), $3) }
 
     line:
         | LINE LPAREN ID COMMA ID RPAREN  { LineVar(Id($3), Id($5) )}
         | LINE LPAREN LPAREN expr COMMA expr RPAREN COMMA LPAREN expr COMMA expr RPAREN RPAREN { LineRaw($4, $6, $10, $12) }
+
+    loop:
+        | FOR assign_stmt SEMI log_expr SEMI assign_stmt COLON EOL other_stmt_list END { For($2, $4, $6, $9) }
         
     other_stmt_list:
         { [] }

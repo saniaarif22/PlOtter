@@ -17,7 +17,8 @@ type tstmt =
   | Assign of texpr * texpr             
   | Print of texpr
   | LineVar of texpr * texpr
-  | LineRaw of texpr * texpr * texpr * texpr                      
+  | LineRaw of texpr * texpr * texpr * texpr
+  | For of tstmt * texpr * tstmt * tstmt list                      
   | Return of texpr
 
 type program = tstmt list
@@ -54,10 +55,14 @@ let rec string_of_tstmt = function
     Expr(expr, t) -> string_of_texpr expr ^ "\n" ^ typeof t
   | Var_Decl(tp, id, t) -> tp ^ " " ^ id ^ "\n" ^ typeof t
   | Passign(v, e1, e2) -> string_of_texpr v ^ " = (" ^ ( string_of_texpr e1 ) ^ "," ^ ( string_of_texpr e2 ) ^ ")\n"
-  | Assign(v, e) -> string_of_texpr v ^ " = " ^ ( string_of_texpr e ) ^ "\n"
+  | Assign(v, e) -> string_of_texpr v ^ " = " ^ ( string_of_texpr e )
   | Print(e) -> "print " ^ string_of_texpr e ^ "\n" 
   | LineVar(e1,e2)-> "line (" ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ")" ^ "\n" 
-  | LineRaw(e1,e2,e3,e4)-> "line ( (" ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ")" ^ "," ^ "(" ^ string_of_texpr e3 ^ "," ^ string_of_texpr e4 ^ ") )\n" 
+  | LineRaw(e1,e2,e3,e4)-> "line ( (" ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ")" ^ "," ^ "(" 
+                            ^ string_of_texpr e3 ^ "," ^ string_of_texpr e4 ^ ") )\n" 
+  | For(s1, e1, s2, body) -> "for " ^ string_of_tstmt s1 ^ " ; " ^ string_of_texpr e1 ^ " ; " ^ string_of_tstmt s2 ^ ": \n" 
+                            ^ ( String.concat "\n\t" (List.map string_of_tstmt body) )
+                            ^ "\nend\n"
   | Return(expr) -> "return " ^ string_of_texpr expr ^ "\n"
 
 let string_of_tprogram stmts =
