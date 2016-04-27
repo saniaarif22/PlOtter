@@ -23,6 +23,7 @@ type expr =
 type stmt = (* Statements *)
     Expr of expr
   | Var_Decl of string * string             (* (type, id) *)
+  | List_Decl of string * string
   | Passign of expr * expr * expr           (* (type, p1, p2) *)
   | Assign of expr * expr                   (* a = 2 *)
   | Print of expr                           (* print 5 *)
@@ -59,6 +60,7 @@ let rec string_of_expr = function
 let rec string_of_stmt = function
     Expr(expr) -> string_of_expr expr ^ "\n"
   | Var_Decl(tp, id) -> tp ^ " " ^ id ^ "\n"
+  | List_Decl(tp, id) -> "list " ^ tp ^ " " ^ id ^ "\n"
   | Passign(v, e1, e2) -> string_of_expr v ^ " = (" ^ ( string_of_expr e1 ) ^ "," ^ (string_of_expr e2) ^ ")\n"
   | Assign(v, e) -> string_of_expr v ^ " = " ^ ( string_of_expr e )
   | Print(e) -> "print " ^ string_of_expr e ^ "\n"

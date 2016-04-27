@@ -189,7 +189,29 @@ let check stmts =
                         if (tp="string") then
                             Sast.Var_Decl(dt, id, Sast.String)
                         else
-                            Sast.Var_Decl(dt, id, Sast.Bool)
+                            if (tp="point") then
+                                Sast.Var_Decl(dt, id, Sast.Point)
+                            else
+                                Sast.Var_Decl(dt, id, Sast.Bool)
+            | Ast.List_Decl(dt, id) -> 
+                (try 
+                ignore (StringMap.find id !(List.hd env.var_types)); 
+                    fail ("variable already declared in local scope: " ^ id)
+                 with | Not_found -> (List.hd env.var_types) := StringMap.add id dt !(List.hd env.var_types);
+                            (List.hd env.var_inds) := StringMap.add id (find_max_index !(List.hd env.var_inds)+1) !(List.hd env.var_inds); 
+                      | Failure(f) -> raise (Failure (f) ) 
+                );
+                let tp = find_var id env.var_types in
+                if (tp="num") then
+                        Sast.List_Decl(dt, id, Sast.Num)
+                    else
+                        if (tp="string") then
+                            Sast.List_Decl(dt, id, Sast.String)
+                        else
+                            if (tp="point") then
+                                Sast.List_Decl(dt, id, Sast.Point)
+                            else
+                                Sast.List_Decl(dt, id, Sast.Bool)
             | Ast.Print(e) -> Sast.Print(expr env e)
             | Ast.LineVar(e1, e2) -> 
                 let se1 = expr env e1 in
