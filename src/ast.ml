@@ -1,24 +1,24 @@
 (* operations *)
-type  ops = 
-        | Add | Sub | Mul  | Div | Mod 
-        | Equal | Neq | Less | Leq | Greater | Geq 
-        | And | Or 
+type  ops =
+        | Add | Sub | Mul  | Div | Mod
+        | Equal | Neq | Less | Leq | Greater | Geq
+        | And | Or
         | Square
 
 type bool =
         | True | False
 
-type t = Num | Bool | String 
+type t = Num | Bool | String | Point
 
 (*expressions*)
-type expr = 
-    Literal_Num of float                
+type expr =
+    Literal_Num of float
   | Literal_Str of string
   | Binop of expr * ops * expr          (* Binary Ops *)
   | Id of string                        (* identifiers *)
   | Bool of bool                        (* True *)
 
-  
+
 
 type stmt = (* Statements *)
     Expr of expr
@@ -31,8 +31,8 @@ type stmt = (* Statements *)
   | For of stmt * expr * stmt * stmt list   (* for i=0; i<5; i=i+1: *)
   | While of expr * stmt list
   | Return of expr
-  
-  
+
+
 type program = stmt list
 
 
@@ -47,10 +47,10 @@ let rec string_of_expr = function
       (match o with
 	Add -> "+" | Sub -> "-" | Mul -> "*" | Div -> "/"
       | Equal -> "==" | Neq -> "!="
-      | Mod -> "%" 
+      | Mod -> "%"
       | And -> "&&" | Or ->"||"
       | Square -> "**"
-      | Less -> "<" | Leq -> "<=" 
+      | Less -> "<" | Leq -> "<="
       | Greater -> ">" | Geq -> ">="
       ) ^ " " ^ string_of_expr e2
   | Bool(x) -> if x = True then "true" else "false"
@@ -62,10 +62,10 @@ let rec string_of_stmt = function
   | Passign(v, e1, e2) -> string_of_expr v ^ " = (" ^ ( string_of_expr e1 ) ^ "," ^ (string_of_expr e2) ^ ")\n"
   | Assign(v, e) -> string_of_expr v ^ " = " ^ ( string_of_expr e )
   | Print(e) -> "print " ^ string_of_expr e ^ "\n"
-  | LineVar(e1,e2)-> "line (" ^ string_of_expr e1 ^ "," ^ string_of_expr e2 ^ ")" ^ "\n" 
-  | LineRaw(e1,e2,e3,e4)-> "line ( (" ^ string_of_expr e1 ^ "," ^ string_of_expr e2 ^ ")" ^ "," ^ "(" ^ string_of_expr e3 
-                              ^ "," ^ string_of_expr e4 ^ ") )\n" 
-  | For(s1, e1, s2, body) -> "for " ^ string_of_stmt s1 ^ " ; " ^ string_of_expr e1 ^ " ; " ^ string_of_stmt s2 ^ ": \n" 
+  | LineVar(e1,e2)-> "line (" ^ string_of_expr e1 ^ "," ^ string_of_expr e2 ^ ")" ^ "\n"
+  | LineRaw(e1,e2,e3,e4)-> "line ( (" ^ string_of_expr e1 ^ "," ^ string_of_expr e2 ^ ")" ^ "," ^ "(" ^ string_of_expr e3
+                              ^ "," ^ string_of_expr e4 ^ ") )\n"
+  | For(s1, e1, s2, body) -> "for " ^ string_of_stmt s1 ^ " ; " ^ string_of_expr e1 ^ " ; " ^ string_of_stmt s2 ^ ": \n"
                             ^ ( String.concat "\n\t" (List.map string_of_stmt body) )
                             ^ "\nend\n"
   | While(e, body) -> "while " ^ string_of_expr e ^ " :\n" ^ (String.concat "\n\t" (List.map string_of_stmt body)) ^ "\nend\n"
