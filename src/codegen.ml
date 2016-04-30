@@ -33,6 +33,13 @@ let convert (stmt_list) =
                 | "point" -> "float" ^ " " ^ id ^ "[2];\n"
                 | _ -> "bool" ^ " " ^ id ^ ";\n"
             ) 
+       | Ast.List_Decl(tp, id) -> 
+            (match tp with
+                  "num" -> "vector float" ^ " " ^ id ^ ";\n"
+                | "string" -> "vector string" ^ " " ^ id ^ ";\n"
+                | "point" -> "vector float" ^ " " ^ id ^ "[2];\n"
+                | _ -> "vector bool" ^ " " ^ id ^ ";\n"
+            ) 
    	   | Ast.Passign(v, e1, e2) -> 
             (* Setting the point elements seperately *)
             create_expr v ^ "[0] = " ^ ( create_expr e1 ) ^ ";\n" ^ 

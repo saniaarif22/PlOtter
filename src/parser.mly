@@ -81,9 +81,13 @@ code:
         
     vdecl:
         | primitive_var_decl { $1 }
+        | list_decl { $1 }
     
     primitive_var_decl:
         | primitive ID  { Var_Decl($1, $2) }
+
+    list_decl:
+        | LIST primitive ID { List_Decl($2, $3) }
         
         
     /*
