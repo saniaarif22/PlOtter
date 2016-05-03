@@ -37,7 +37,7 @@ let convert (stmt_list) =
             (match tp with
                   "num" -> "vector <float>" ^ " " ^ id ^ ";\n"
                 | "string" -> "vector <string>" ^ " " ^ id ^ ";\n"
-                | "point" -> "vector <array<float, 2>>" ^ " " ^ id ^ "[2];\n"
+                | "point" -> "vector <array<float, 2>>" ^ " " ^ id ^ ";\n"
                 | _ -> "vector <bool>" ^ " " ^ id ^ ";\n"
             ) 
    	   | Ast.Passign(v, e1, e2) -> 
