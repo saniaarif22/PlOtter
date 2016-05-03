@@ -37,7 +37,7 @@ type stmt = (* Statements *)
 type program = stmt list
 
 
-(* Pretty Print Stuff *)
+(* Pretty Print *)
 
 let rec string_of_expr = function
     Literal_Num(l) -> string_of_float l
