@@ -31,6 +31,11 @@ let check stmts =
         | Sast.String -> "string"
         | Sast.Bool -> "bool" 
         | Sast.Point -> "point" 
+        | Sast.ListBool     -> "listbool" 
+        | Sast.ListNum      -> "listnum" 
+        | Sast.ListString   -> "liststring" 
+        | Sast.ListPoint    -> "listpoint" 
+        
     in
     
     let str_to_type str_typ = function
@@ -38,6 +43,11 @@ let check stmts =
         | "string" -> Sast.String
         | "bool" -> Sast.Bool
         | "point" -> Sast.Point
+        | "listnum"     -> Sast.ListNum
+        | "liststring"  -> Sast.ListString
+        | "listpoint"   -> Sast.ListPoint
+        | "listbool"    -> Sast.ListBool
+    
     in
     (* Setting Environment for Sast *)
     let find_var var map_list =
@@ -84,16 +94,16 @@ let check stmts =
                 (try
                     (*let tp = str_to_type (find_var v env.var_types) in *)
                     let tp = find_var v env.var_types in
-                    if (tp="num") then
-                        Sast.Id(v, Sast.Num)
-                    else
-                        if (tp="string") then
-                            Sast.Id(v,Sast.String)
-                        else
-                            if (tp="point") then
-                                Sast.Id(v,Sast.Point)
-                            else
-                                Sast.Id(v, Sast.Bool)
+                    ( match tp with
+                        | "num"         ->  Sast.Id(v, Sast.Num)
+                        | "string"      ->  Sast.Id(v,Sast.String)
+                        | "point"       ->  Sast.Id(v,Sast.Point)
+                        | "bool"        ->  Sast.Id(v, Sast.Bool)
+                        | "listnum"     ->  Sast.Id(v, Sast.ListNum)
+                        | "liststring"  ->  Sast.Id(v, Sast.ListString)
+                        | "listpoint"   ->  Sast.Id(v, Sast.ListPoint)
+                        | "listbool"    ->  Sast.Id(v, Sast.ListBool)
+                    )
                  with
                  | Not_found -> fail ("undeclared variable: " ^ v)
                 )
@@ -110,7 +120,7 @@ let check stmts =
                             | Num -> Sast.Binop(se1, op, se2, Sast.Num)
                             | String ->  fail ("Cannot Add Num and string")
                             | Bool -> fail ("Cannot Add Bool")
-                            | _ -> fail ("Incorrect type with Num"))
+                            | _ -> fail ("Incorrect type " ^ (type_to_str e2_data) ^ " with Num"))
                     | _ -> fail ("Operation on incompatible types")
                     )
                 | Equal | Neq ->
@@ -118,17 +128,17 @@ let check stmts =
                     | Num ->
                         (match e2_data with
                             | Num -> Sast.Binop(se1, op, se2, Sast.Bool)
-                            | _ -> raise(Failure("Incorrect type with Num == or != "))
+                            | _ -> fail("Incorrect type with Num == or != ")
                         )
                     | String ->
                          (match e2_data with
                             | String -> Sast.Binop(se1, op, se2, Sast.Bool)
-                            | _ -> raise(Failure("Incorrect type with String == or != "))
+                            | _ -> fail("Incorrect type with String == or != ")
                         )
                     | Bool ->
                          (match e2_data with
                             | Bool -> Sast.Binop(se1, op, se2, Sast.Bool)
-                            | _ -> raise(Failure("Incorrect type with Bool == or != "))
+                            | _ -> fail("Incorrect type with Bool == or != ")
                         )
                     (*| Void  -> fail ("Cannot perform binop on void") *)
                     )
@@ -138,7 +148,7 @@ let check stmts =
                     | Num ->
                         (match e2_data with
                             | Num -> Sast.Binop(se1, op, se2, Sast.Bool)
-                            | _ -> raise(Failure("Incorrect type with Num < or <= or > or >= "))
+                            | _ -> fail("Incorrect type with Num < or <= or > or >= ")
                         )
                     | String ->
                          (match e2_data with
@@ -197,21 +207,21 @@ let check stmts =
                 (try 
                 ignore (StringMap.find id !(List.hd env.var_types)); 
                     fail ("variable already declared in local scope: " ^ id)
-                 with | Not_found -> (List.hd env.var_types) := StringMap.add id dt !(List.hd env.var_types);
+                 with | Not_found -> (List.hd env.var_types) := StringMap.add id ("list"^dt) !(List.hd env.var_types);
                             (List.hd env.var_inds) := StringMap.add id (find_max_index !(List.hd env.var_inds)+1) !(List.hd env.var_inds); 
                       | Failure(f) -> raise (Failure (f) ) 
                 );
                 let tp = find_var id env.var_types in
-                if (tp="num") then
-                        Sast.List_Decl(dt, id, Sast.Num)
+                if (tp="list num") then
+                    Sast.List_Decl(dt, id, Sast.ListNum)
+                else
+                    if (tp="list string") then
+                        Sast.List_Decl(dt, id, Sast.ListString)
                     else
-                        if (tp="string") then
-                            Sast.List_Decl(dt, id, Sast.String)
+                        if (tp="list point") then
+                            Sast.List_Decl(dt, id, Sast.ListPoint)
                         else
-                            if (tp="point") then
-                                Sast.List_Decl(dt, id, Sast.Point)
-                            else
-                                Sast.List_Decl(dt, id, Sast.Bool)
+                            Sast.List_Decl(dt, id, Sast.ListBool)
             | Ast.Print(e) -> Sast.Print(expr env e)
             | Ast.LineVar(e1, e2) -> 
                 let se1 = expr env e1 in

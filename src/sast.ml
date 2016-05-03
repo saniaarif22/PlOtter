@@ -1,7 +1,8 @@
 
 open Ast
 
-type t = Num | Bool | String | Point
+type t =  Num | Bool | String | Point
+        | ListNum | ListString | ListPoint | ListBool
 
 type texpr =
 			Literal_Num of float * t               
@@ -33,6 +34,10 @@ let typeof t =
         | Bool -> "bool"
         | String -> "string"
         | Point -> "point"
+        | ListNum    -> "listNum"
+        | ListString -> "listString"
+        | ListBool   -> "listBool"
+        | ListPoint  -> "listPoint"
 
 
 let rec string_of_texpr = function
