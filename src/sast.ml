@@ -5,7 +5,7 @@ type t =  Num | Bool | String | Point | List
         | ListNum | ListString | ListPoint | ListBool
 
 type texpr =
-			Literal_Num of float * t               
+			Literal_Num of float * t
   			| Literal_Str of string * t
             | Literal_List of texpr list * t
   			| Binop of texpr * Ast.ops * texpr * t
@@ -15,21 +15,21 @@ type texpr =
 type tstmt =
     Expr of texpr * t
   | Var_Decl of string * string * t
-  | List_Decl of string * string *  t         
-  | Passign of texpr * texpr * texpr             
-  | Assign of texpr * texpr             
+  | List_Decl of string * string *  t
+  | Passign of texpr * texpr * texpr
+  | Assign of texpr * texpr
   | Print of texpr
   | LineVar of texpr * texpr
   | LineRaw of texpr * texpr * texpr * texpr
   | For of tstmt * texpr * tstmt * tstmt list
-  | While of texpr * tstmt list                      
+  | While of texpr * tstmt list
   | Return of texpr
 
 type program = tstmt list
 
 (* Pretty Print Stuff *)
 
-let typeof t = 
+let typeof t =
   match t with
         | Num -> "num"
         | Bool -> "bool"
@@ -52,10 +52,10 @@ let rec string_of_texpr = function
       (match o with
   Add -> "+" | Sub -> "-" | Mul -> "*" | Div -> "/"
       | Equal -> "==" | Neq -> "!="
-      | Mod -> "%" 
+      | Mod -> "%"
       | And -> "&&" | Or ->"||"
       | Square -> "**"
-      | Less -> "<" | Leq -> "<=" 
+      | Less -> "<" | Leq -> "<="
       | Greater -> ">" | Geq -> ">="
       ) ^ " " ^ string_of_texpr e2 ^ typeof t
   | Bool(x, t) -> if x = True then "true" else "false" ^ typeof t
@@ -67,11 +67,11 @@ let rec string_of_tstmt = function
   | List_Decl(tp, id, t) -> "list" ^ tp ^ " " ^ id ^ "\n" ^ typeof t
   | Passign(v, e1, e2) -> string_of_texpr v ^ " = (" ^ ( string_of_texpr e1 ) ^ "," ^ ( string_of_texpr e2 ) ^ ")\n"
   | Assign(v, e) -> string_of_texpr v ^ " = " ^ ( string_of_texpr e )
-  | Print(e) -> "print " ^ string_of_texpr e ^ "\n" 
-  | LineVar(e1,e2)-> "line (" ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ")" ^ "\n" 
-  | LineRaw(e1,e2,e3,e4)-> "line ( (" ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ")" ^ "," ^ "(" 
-                            ^ string_of_texpr e3 ^ "," ^ string_of_texpr e4 ^ ") )\n" 
-  | For(s1, e1, s2, body) -> "for " ^ string_of_tstmt s1 ^ " ; " ^ string_of_texpr e1 ^ " ; " ^ string_of_tstmt s2 ^ ": \n" 
+  | Print(e) -> "print " ^ string_of_texpr e ^ "\n"
+  | LineVar(e1,e2)-> "line (" ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ")" ^ "\n"
+  | LineRaw(e1,e2,e3,e4)-> "line ( (" ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ")" ^ "," ^ "("
+                            ^ string_of_texpr e3 ^ "," ^ string_of_texpr e4 ^ ") )\n"
+  | For(s1, e1, s2, body) -> "for " ^ string_of_tstmt s1 ^ " ; " ^ string_of_texpr e1 ^ " ; " ^ string_of_tstmt s2 ^ ": \n"
                             ^ ( String.concat "\n\t" (List.map string_of_tstmt body) )
                             ^ "\nend\n"
   | While(e, body) -> "while " ^ string_of_texpr e ^ " :\n" ^ (String.concat "\n\t" (List.map string_of_tstmt body)) ^ "\nend\n"
