@@ -13,10 +13,11 @@ type bool =
 type expr =
     Literal_Num of float
   | Literal_Str of string
+  | Literal_List of expr list           (* Eg [ expr, expr, .. ] *)
   | Binop of expr * ops * expr          (* Binary Ops *)
   | Id of string                        (* identifiers *)
   | Bool of bool                        (* True *)
-
+  | Noexpr
 
 
 type stmt = (* Statements *)
@@ -36,7 +37,7 @@ type stmt = (* Statements *)
 type program = stmt list
 
 
-(* Pretty Print Stuff *)
+(* Pretty Print *)
 
 let rec string_of_expr = function
     Literal_Num(l) -> string_of_float l

@@ -6,6 +6,7 @@ let convert (stmt_list) =
   let rec create_expr = function
       | Ast.Literal_Num(l) -> (string_of_float l) ^ "0"
       | Ast.Literal_Str(l) -> l 
+      | Ast.Literal_List(l)-> "{" ^ (String.concat "," (List.map  create_expr l) ) ^ "}"
       | Ast.Id(s) -> s
       | Ast.Binop(e1, o, e2) -> 
       			create_expr e1 ^ " " ^
@@ -35,6 +36,7 @@ let convert (stmt_list) =
             ) 
        | Ast.List_Decl(tp, id) -> 
             (match tp with
+
                   "num" -> "vector <float>" ^ " " ^ id ^ ";\n"
                 | "string" -> "vector <string>" ^ " " ^ id ^ ";\n"
                 | "point" -> "vector <array<float, 2>>" ^ " " ^ id ^ ";\n"
@@ -44,7 +46,7 @@ let convert (stmt_list) =
             (* Setting the point elements seperately *)
             create_expr v ^ "[0] = " ^ ( create_expr e1 ) ^ ";\n" ^ 
             create_expr v ^ "[1] = " ^ ( create_expr e2 ) ^ ";\n"
-   	   | Ast.Assign(v, e) -> create_expr v ^ " = " ^ ( create_expr e ) ^ ";"
+   	   | Ast.Assign(v, e) -> create_expr v ^ " = " ^ ( create_expr e ) ^ ";\n"
    	   | Ast.Print(e) -> "put_in_svg( " ^ create_expr e ^ ");\n"
        | Ast.LineVar(e1, e2) -> "put_in_svg (" ^ create_expr e1 ^ "," ^ create_expr e2 ^");\n"
        | Ast.LineRaw(e1, e2, e3, e4) -> "put_in_svg (" ^ create_expr e1 ^ "," ^ create_expr e2 
@@ -58,7 +60,7 @@ let convert (stmt_list) =
 
    in
    
-    "#include <iostream>\n#include <fstream>\n" ^
+    "#include <iostream>\n#include <fstream>\n#include <vector>\n" ^
     "using namespace std;\n"^
 
     "ofstream f;\n"^

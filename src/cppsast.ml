@@ -3,16 +3,20 @@ open Tast
 open Ast
 
 (* Convert ast expr to Tast expr *)
+
+
+let convert_to_cppast stmts_list =
 let rec convert_to_texpr stmt = function
   | Ast.Literal_Num(v) -> Tast.Literal_Float(v)
   | Ast.Literal_Str(v) -> Tast.Literal_Str(v)
-  | Ast.Bool(v)        -> Tast.Bool(v)
-  | Ast.Id(v)          -> Tast.Id(v)
+  | Ast.Bool(v)        -> if v = True then Tast.Bool(True) else Tast.Bool(False)
   | Ast.Binop(e1, op, e2) ->
-      let te1 = convert_to_cexpr e1 in
-      let te2 = convert_to_cexpr e2 in
-      match op with
-      | Add | Sub | Mul | Div | Equal | Neq | Less | Leq | Greater -> Tast.Binop(te1, op, te2)
+      let te1 = convert_to_texpr stmt e1 ;
+      let te2 = convert_to_texpr stmt e2 ;
+      Tast.Binop(te1, op, te2)
+
+  | Ast.Id(v)          -> Tast.Id(v)
+
   in
 
 (* Convert ast stmt to Tast stmt *)
@@ -34,4 +38,4 @@ let rec convert_to_tstmt  = function
   in
   List.map (fun s -> convert_to_tstmt s) stmts_list
 in
-Tast.string_of_tprogram (convert_to_tstmt stmt)
+Tast.string_of_tprogram (convert_to_cppast stmt)
