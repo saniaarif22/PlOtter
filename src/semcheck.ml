@@ -35,6 +35,7 @@ let check stmts =
         | Sast.ListNum      -> "listnum" 
         | Sast.ListString   -> "liststring" 
         | Sast.ListPoint    -> "listpoint" 
+        | Sast.List     -> "list" 
         
     in
     
@@ -47,7 +48,8 @@ let check stmts =
         | "liststring"  -> Sast.ListString
         | "listpoint"   -> Sast.ListPoint
         | "listbool"    -> Sast.ListBool
-    
+        | "list"     -> Sast.List
+        
     in
     (* Setting Environment for Sast *)
     let find_var var map_list =
@@ -76,6 +78,7 @@ let check stmts =
     let typeof elem = match elem with
         | Sast.Literal_Num(_,t) -> t
         | Sast.Literal_Str(_,t) -> t
+        | Sast.Literal_List(_,t) -> t
         | Sast.Binop(_,_,_,t) -> t
         | Sast.Id(_,t) -> t
         | Sast.Bool(_,t) -> t
@@ -88,11 +91,23 @@ let check stmts =
         let rec expr env = function
             | Ast.Literal_Num(v) -> Sast.Literal_Num(v, Sast.Num)
             | Ast.Literal_Str(v) -> Sast.Literal_Str(v, Sast.String)
+            | Ast.Literal_List(v) -> 
+                    let tv = List.map (fun s -> expr env s) v in
+                    (match tv with 
+                    | [] -> Sast.Literal_List(tv, Sast.List)
+                    | hd::tl -> 
+                        (match (type_to_str (typeof hd)) with
+                        | "num"     -> Sast.Literal_List(tv, Sast.ListNum)
+                        | "string"  -> Sast.Literal_List(tv, Sast.ListString)
+                        | "bool"    -> Sast.Literal_List(tv, Sast.ListBool)
+                        | _         -> fail("Lists can contain only bool/string/num")
+                        )
+                    )
+                    
             | Ast.Bool(v)        -> Sast.Bool(v,Sast.Bool)
             | Ast.Id(v)          -> 
                 (* uses find_var to determine the type of id *)
                 (try
-                    (*let tp = str_to_type (find_var v env.var_types) in *)
                     let tp = find_var v env.var_types in
                     ( match tp with
                         | "num"         ->  Sast.Id(v, Sast.Num)
@@ -212,13 +227,13 @@ let check stmts =
                       | Failure(f) -> raise (Failure (f) ) 
                 );
                 let tp = find_var id env.var_types in
-                if (tp="list num") then
+                if (tp="listnum") then
                     Sast.List_Decl(dt, id, Sast.ListNum)
                 else
-                    if (tp="list string") then
+                    if (tp="liststring") then
                         Sast.List_Decl(dt, id, Sast.ListString)
                     else
-                        if (tp="list point") then
+                        if (tp="listpoint") then
                             Sast.List_Decl(dt, id, Sast.ListPoint)
                         else
                             Sast.List_Decl(dt, id, Sast.ListBool)

@@ -1,8 +1,13 @@
 # PlOtter
 
     The source files are located in src/
+
+#Requirements
+
+	OCaml
+	C++11
     
-Steps to Run:
+#Steps to Run:
 
   - Navigate to the src/ folder
   > cd src
@@ -16,7 +21,7 @@ Steps to Run:
   > ./plotter < <program_name>.plt > <program_name>.cpp
 
   - Compile the C++ program
-  > g++ prg_name.cpp
+  > g++ -std=c++11 prg_name.cpp
   
   - Run the executable which then generates a SVG 'hello.svg' as output
   > ./a.out

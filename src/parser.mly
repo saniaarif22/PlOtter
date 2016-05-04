@@ -65,10 +65,22 @@ code:
    ============================================= */
    
     literal:
-        | LIT_NUM { Literal_Num($1) }
-        | LIT_STR { Literal_Str($1) }
-        /* list hash point to be added */
+        | LIT_NUM       { Literal_Num($1) }
+        | LIT_STR       { Literal_Str($1) }
+        | literal_list  { $1 } 
+        
+    literal_list:
+        | LBRACK list_elements RBRACK { Literal_List($2) }
     
+    list_elements:
+        /* nothing */ { [] }
+        | list_content  { List.rev $1 }
+        
+    list_content:
+        expr                    { [$1] }
+        | list_content COMMA expr { $3 :: $1 } 
+    
+
     primitive:
         | BOOL      {"bool"}
         | NUM       {"num"}
@@ -120,11 +132,15 @@ code:
         | RETURN expr EOL    { Return($2) }
         | vdecl EOL          { $1 }
         | loop EOL           { $1 }
-
+    
     assign_stmt:
         | ID ASSIGN LPAREN expr COMMA expr RPAREN { Passign(Id($1),$4,$6)}
-        | ID ASSIGN expr  { Assign(Id($1), $3) }
-
+        | ID ASSIGN expr        { Assign(Id($1), $3) }
+        | list_assign           { $1 }
+    
+    list_assign:
+        | ID ASSIGN literal_list {Assign(Id($1), $3) }
+ 
     line:
         | LINE LPAREN ID COMMA ID RPAREN  { LineVar(Id($3), Id($5) )}
         | LINE LPAREN LPAREN expr COMMA expr RPAREN COMMA LPAREN expr COMMA expr RPAREN RPAREN { LineRaw($4, $6, $10, $12) }

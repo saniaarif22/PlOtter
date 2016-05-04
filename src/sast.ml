@@ -1,12 +1,13 @@
 
 open Ast
 
-type t =  Num | Bool | String | Point
+type t =  Num | Bool | String | Point | List
         | ListNum | ListString | ListPoint | ListBool
 
 type texpr =
 			Literal_Num of float * t               
   			| Literal_Str of string * t
+            | Literal_List of texpr list * t
   			| Binop of texpr * Ast.ops * texpr * t
   			| Id of string * t
   			| Bool of bool * t
@@ -38,11 +39,13 @@ let typeof t =
         | ListString -> "listString"
         | ListBool   -> "listBool"
         | ListPoint  -> "listPoint"
+        | List -> "list"
 
 
 let rec string_of_texpr = function
     Literal_Num(l, t) -> string_of_float l ^ typeof t
   | Literal_Str(l, t) -> l ^ typeof t
+  | Literal_List(l, t) ->  typeof t
   | Id(s, t) -> s ^ typeof t
   | Binop(e1, o, e2, t) ->
       string_of_texpr e1 ^ " " ^
