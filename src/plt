@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# Simple runnable shell script to avoid the manual work
+# This script runs the plotter code, gets the c++ outut
+# compiles  it  and executes its output(which generates
+# the svg). This is then renamed, & temp files are
+# removed
+
+# 1st arg - input .plt file
+
+set -e 
+
+f=$1
+l=${#f} 
+
+file=${f::l-4}
+
+
+./plotter < $1 > $file.cpp
+
+g++ -std=c++11 $file.cpp
+
+./a.out
+
+mv hello.svg $file.svg
+
+rm $file.cpp a.out
