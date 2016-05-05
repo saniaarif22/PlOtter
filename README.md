@@ -2,15 +2,15 @@
 
     The source files are located in src/
 
-#Requirements
+### Requirements ###
 	OCaml
 	C++11
     
-#Sample
+#### Sample Output ###
 
 ![Alt text](https://github.com/saniaarif22/PlOtter/blob/master/sample/sample1.png?raw=true "Sample 1")
 
-#Steps to Run:
+### Steps to Run: ###
 
   - Navigate to the src/ folder
   > cd src
@@ -24,7 +24,7 @@
   - Open the svg (hello.svg) file in a browser to view
 
 
-### If you intentionally want to do it the long way: ###
+#### If you intentionally want to do it the long way: ####
   
   - Write a program in plotter and save it as <program_name>.plt
 
