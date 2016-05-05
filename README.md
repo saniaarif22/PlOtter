@@ -24,8 +24,7 @@
   - Open the svg (hello.svg) file in a browser to view
 
 
-
-  If you intentionally want to do it the long way: 
+### If you intentionally want to do it the long way: ###
   
   - Write a program in plotter and save it as <program_name>.plt
 
