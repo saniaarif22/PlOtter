@@ -1,12 +1,7 @@
-num c
-c = 500
-num d
-d = 250
 num i
 i = 0
-while i < 75:
-line((250, c), (500, d))
-i = i + 5
-c = c - i
-d = d + i
+while i <= 500:
+	line((50,i+50), (550, 500-i+50))
+	line((50+i,50),(550-i,550))
+	i = i + 10
 end
