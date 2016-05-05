@@ -19,7 +19,7 @@
   > make
   
   - Run the program, <program name>.svg is created
-  > ./plt /<path_to_your_program>.plt
+  > ./plt /path_to_your_program.plt
 
   - Open the svg (hello.svg) file in a browser to view
 
