@@ -19,9 +19,13 @@
   > make
   
   - Run the program, <program name>.svg is created
-  > ./plt /path/to/your/program.plt
+  > ./plt /<path_to_your_program>.plt
 
-  If you intentionally wanna complicate things then do this instead.. 
+  - Open the svg (hello.svg) file in a browser to view
+
+
+
+  If you intentionally want to do it the long way: 
   
   - Write a program in plotter and save it as <program_name>.plt
 
@@ -34,4 +38,4 @@
   - Run the executable which then generates a SVG 'hello.svg' as output
   > ./a.out
 
-  - Open the svg using a browser to view
+  - Open the svg file (hello.svg) in a browser to view
