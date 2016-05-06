@@ -18,6 +18,7 @@ type tstmt =
   | List_Decl of string * string *  t
   | Passign of texpr * texpr * texpr
   | Assign of texpr * texpr
+  | Append of texpr * texpr
   | Print of texpr
   | LineVar of texpr * texpr
   | LineRaw of texpr * texpr * texpr * texpr
@@ -67,6 +68,7 @@ let rec string_of_tstmt = function
   | List_Decl(tp, id, t) -> "list" ^ tp ^ " " ^ id ^ "\n" ^ typeof t
   | Passign(v, e1, e2) -> string_of_texpr v ^ " = (" ^ ( string_of_texpr e1 ) ^ "," ^ ( string_of_texpr e2 ) ^ ")\n"
   | Assign(v, e) -> string_of_texpr v ^ " = " ^ ( string_of_texpr e )
+  | Append(v, e) -> string_of_texpr v ^ ".append(" ^ ( string_of_texpr e ) ^ ")"
   | Print(e) -> "print " ^ string_of_texpr e ^ "\n"
   | LineVar(e1,e2)-> "line (" ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ")" ^ "\n"
   | LineRaw(e1,e2,e3,e4)-> "line ( (" ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ")" ^ "," ^ "("

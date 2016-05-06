@@ -5,7 +5,7 @@
 %token EQUAL NEQ LESS GREATER LEQ GEQ
 %token AND OR NOT
 %token SEMI COMMA COMMENT OF COLON
-%token STRING NUM BOOL POINT NONE LIST HASH
+%token STRING NUM BOOL POINT NONE LIST HASH APPEND
 %token TRUE FALSE
 %token RETURN IF ELSE FOR WHILE END BREAK CONTINUE THEN FN
 %token PRINT
@@ -126,12 +126,16 @@ code:
     other_stmt:
         | expr EOL           { Expr($1) }
         | log_expr EOL       { Expr($1) }
+        | list_stmt EOL      { $1 }
         | assign_stmt EOL    { $1 }
         | PRINT expr EOL     { Print($2) }
         | line EOL           { $1 }
         | RETURN expr EOL    { Return($2) }
         | vdecl EOL          { $1 }
         | loop EOL           { $1 }
+    
+    list_stmt:
+    | ID APPEND LPAREN expr RPAREN { Append( Id($1), $4)}
     
     assign_stmt:
         | ID ASSIGN LPAREN expr COMMA expr RPAREN { Passign(Id($1),$4,$6)}
@@ -178,6 +182,7 @@ code:
   expr: 
   | arith_expr          { $1 }
   | LPAREN expr RPAREN  { $2 }
+  
   
   
   arith_expr : 
