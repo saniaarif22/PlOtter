@@ -34,7 +34,8 @@ type stmt = (* Statements *)
   | LineVar of expr * expr                  (* line(p,q) *)
   | LineRaw of expr * expr * expr * expr    (* line((3,4), (7,9)) *)
   | For of stmt * expr * stmt * stmt list   (* for i=0; i<5; i=i+1: *)
-  | While of expr * stmt list
+  | While  of expr * stmt list
+  | Ifelse of expr * stmt list * stmt list
   | Return of expr
   | Noexpr
 
@@ -82,6 +83,7 @@ let rec string_of_stmt = function
                             ^ ( String.concat "\n\t" (List.map string_of_stmt body) )
                             ^ "\nend\n"
   | While(e, body) -> "while " ^ string_of_expr e ^ " :\n" ^ (String.concat "\n\t" (List.map string_of_stmt body)) ^ "\nend\n"
+  | Ifelse(e, succ_stmt, else_stmt) -> "if " ^ string_of_expr e ^ " :\n" ^ (String.concat "\n\t" (List.map string_of_stmt succ_stmt)) ^ "\nelse:\n" ^ (String.concat "\n\t" (List.map string_of_stmt else_stmt)) ^ "end\n"
   | Return(expr) -> "return " ^ string_of_expr expr ^ "\n"
   | Noexpr -> ""
 

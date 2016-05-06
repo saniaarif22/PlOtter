@@ -27,28 +27,28 @@ let check stmts =
     in
     
     let type_to_str t = match t with 
-        | Sast.Num -> "num"
-        | Sast.String -> "string"
-        | Sast.Bool -> "bool" 
-        | Sast.Point -> "point" 
+        | Sast.Num          -> "num"
+        | Sast.String       -> "string"
+        | Sast.Bool         -> "bool" 
+        | Sast.Point        -> "point" 
         | Sast.ListBool     -> "listbool" 
         | Sast.ListNum      -> "listnum" 
         | Sast.ListString   -> "liststring" 
         | Sast.ListPoint    -> "listpoint" 
-        | Sast.List     -> "list" 
+        | Sast.List         -> "list" 
         
     in
     
     let str_to_type str_typ = function
-        | "num" -> Sast.Num
-        | "string" -> Sast.String
-        | "bool" -> Sast.Bool
-        | "point" -> Sast.Point
+        | "num"         -> Sast.Num
+        | "string"      -> Sast.String
+        | "bool"        -> Sast.Bool
+        | "point"       -> Sast.Point
         | "listnum"     -> Sast.ListNum
         | "liststring"  -> Sast.ListString
         | "listpoint"   -> Sast.ListPoint
         | "listbool"    -> Sast.ListBool
-        | "list"     -> Sast.List
+        | "list"        -> Sast.List
         
     in
     (* Setting Environment for Sast *)
@@ -309,6 +309,9 @@ let check stmts =
             | Ast.While(e, body) ->
                 let se = expr env e in
                 Sast.While(se, List.map (fun s -> stmt env s) body)
+            | Ast.Ifelse(e, s1, s2) ->
+                let se = expr env e in
+                Sast.Ifelse(se, List.map (fun s -> stmt env s) s1, List.map (fun s -> stmt env s) s2)
             | Ast.Return(e) -> Sast.Return(expr env e)
             
         in

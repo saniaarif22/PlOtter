@@ -16,6 +16,7 @@ if(os.system('make')!=0):
 #Proceed if make succeeds
 for file in testFiles:
 	#For each test file perform the test. And print pass or failure
+	"""
 	runStr = './plotter < tests/test_'+file+'.plt > temp.cpp'
 	if(os.system(runStr)!=0):
 		print '**** ERROR : Cannor run '+file+' file with plotter'
@@ -25,10 +26,15 @@ for file in testFiles:
 		continue
 	os.system('./a.out')
 	os.system('diff hello.svg tests/test_'+file+'.svg > temp.out')
+	"""
+	runStr = './plt ' + file + ' > temp.out'
+	if( os.system(runStr)!=0):
+		print '**** ERROR : Cannor run '+file+' file with plotter'
+		continue
 	f = open('temp.out')
 	s = f.readlines()
 	f.close()
-	if len(s)>0:
+	if len(s)>0 and file[:4]=='pass':
 		print '**** FAILED for file '+file
 		print s
 	else:

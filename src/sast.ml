@@ -28,6 +28,7 @@ type tstmt =
   | LineRaw of texpr * texpr * texpr * texpr
   | For of tstmt * texpr * tstmt * tstmt list
   | While of texpr * tstmt list
+  | Ifelse of texpr * tstmt list * tstmt list
   | Return of texpr
   | Noexpr
 
@@ -87,6 +88,7 @@ let rec string_of_tstmt = function
                             ^ ( String.concat "\n\t" (List.map string_of_tstmt body) )
                             ^ "\nend\n"
   | While(e, body) -> "while " ^ string_of_texpr e ^ " :\n" ^ (String.concat "\n\t" (List.map string_of_tstmt body)) ^ "\nend\n"
+  | Ifelse(e, s1, s2) -> "if " ^ string_of_texpr e ^ " :\n" ^ (String.concat "\n\t" (List.map string_of_tstmt s1)) ^ "\nelse:\n" ^ (String.concat "\n\t" (List.map string_of_tstmt s2)) ^ "\nend\n"
   | Return(expr) -> "return " ^ string_of_texpr expr ^ "\n"
 
 let string_of_tprogram stmts =

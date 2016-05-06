@@ -111,6 +111,7 @@ code:
 
     other_stmt:
         | expr EOL           { Expr($1) }
+        | cond_stmt EOL      { $1 }
         | log_expr EOL       { Expr($1) }
         | list_stmt EOL      { $1 }
         | assign_stmt EOL    { $1 }
@@ -118,9 +119,12 @@ code:
         | line EOL           { $1 }
         | RETURN expr EOL    { Return($2) }
         | vdecl EOL          { $1 }
-        | loop EOL           { $1 }
+        | loop_stmt EOL           { $1 }
         | EOL                { Noexpr }
 
+    cond_stmt:
+        | IF expr COLON EOL other_stmt_list END            { Ifelse($2, $5, []) }
+        | IF expr COLON EOL other_stmt_list ELSE COLON EOL other_stmt_list END  { Ifelse($2, $5, $9) }
 
     list_stmt:
         | ID OF APPEND LPAREN expr RPAREN       { Append( Id($1), $5)}
@@ -143,7 +147,7 @@ code:
         | LINE LPAREN ID COMMA ID RPAREN  { LineVar(Id($3), Id($5) )}
         | LINE LPAREN LPAREN expr COMMA expr RPAREN COMMA LPAREN expr COMMA expr RPAREN RPAREN { LineRaw($4, $6, $10, $12) }
 
-    loop:
+    loop_stmt:
         | FOR assign_stmt SEMI log_expr SEMI assign_stmt COLON EOL other_stmt_list END { For($2, $4, $6, List.rev $9) }
         | WHILE log_expr COLON EOL other_stmt_list END {While($2, List.rev $5)}
         
