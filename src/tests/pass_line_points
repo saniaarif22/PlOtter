@@ -1,0 +1,5 @@
+point a
+a = (5,5)
+point b
+b = (100,100)
+line(a, b)
