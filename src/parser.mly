@@ -38,27 +38,6 @@ code:
    /* nothing */    { [] }
  | code stmt        { $2 :: $1}
 
-/* =============================================
-                    Functions     
-   ============================================= */
-   
-   /* No locals. as variables can be declared at any point */
-   /*fdecl:
-        FN ID LPAREN formals_opt RPAREN COLON EOL stmt_list END
-        { { fname = $2;
-            formals = $4;
-            body = List.rev $8 } }
-    
-    formals_opt:
-         { [] }
-        | formal_list { List.rev $1 }
-     
-    formal_list:
-        formal                     { [$1] }
-        | formal_list COMMA formal { $3 :: $1 }
-
-    formal:
-        data_type ID    { ($1, $2) }*/
     
 /* =============================================
                     Variable     
@@ -86,9 +65,13 @@ code:
         | NUM       {"num"}
         | STRING    {"string"}
         | POINT     {"point"}
+
+    /*non_primitive:
+        | LIST primitive */
     
     data_type:
         | primitive { $1 }
+        /*| non_primitive { $1 }*/
         /* Point, List and hash are to be added here */
         
     vdecl:
@@ -118,10 +101,10 @@ code:
 
     stmt:
         | other_stmt { $1 }
-        /*| func_stmt  { $1 } */
+        | func_stmt  { $1 } 
     
-    /*func_stmt:
-        | fdecl { $1 }*/
+    func_stmt:
+        | fdecl { $1 }
     
     other_stmt:
         | expr EOL           { Expr($1) }
@@ -160,6 +143,28 @@ code:
     stmt_list:
          { [] }
         | stmt_list stmt { $2 :: $1 }
+
+/* =============================================
+                    Functions     
+   ============================================= */
+   
+   /* No locals. as variables can be declared at any point */
+   fdecl:
+        FN ID LPAREN args_opt RPAREN COLON EOL stmt_list END
+        { { fname = $2;
+            args = $4;
+            body = List.rev $8 } }
+    
+    args_opt:
+         { [] }
+        | args_list { List.rev $1 }
+     
+    args_list:
+          arg                     { [$1] }
+        | args_list COMMA arg { $3 :: $1 }
+
+    arg:
+        data_type ID    { ($1, $2) }
         
     
 /* =============================================
