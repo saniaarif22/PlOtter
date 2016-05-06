@@ -11,10 +11,9 @@ let rec convert_to_texpr stmt = function
   | Ast.Literal_Str(v) -> Tast.Literal_Str(v)
   | Ast.Bool(v)        -> if v = True then Tast.Bool(True) else Tast.Bool(False)
   | Ast.Binop(e1, op, e2) ->
-      let te1 = convert_to_texpr stmt e1 ;
-      let te2 = convert_to_texpr stmt e2 ;
+      let te1 = convert_to_texpr stmt e1 in
+      let te2 = convert_to_texpr stmt e2 in
       Tast.Binop(te1, op, te2)
-
   | Ast.Id(v)          -> Tast.Id(v)
 
   in
