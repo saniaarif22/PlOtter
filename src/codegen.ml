@@ -48,6 +48,10 @@ let convert (stmt_list) =
             create_expr v ^ "[1] = " ^ ( create_expr e2 ) ^ ";\n"
    	   | Ast.Assign(v, e) -> create_expr v ^ " = " ^ ( create_expr e ) ^ ";\n"
    	   | Ast.Append(v, e) -> create_expr v ^ ".push_back(" ^ ( create_expr e ) ^ ");\n"
+   	   | Ast.Pop(v) -> create_expr v ^ ".pop_back();\n"
+   	   | Ast.Remove(v,e) -> create_expr v ^ ".erase(" ^ (create_expr v) ^ ".begin() + " ^ ( create_expr e ) ^ ");\n"
+   	   | Ast.Access(v,e) -> create_expr v ^ ".at(" ^ ( create_expr e ) ^ ");\n"
+   	   | Ast.Length(v) -> create_expr v ^ ".size();\n"
    	   | Ast.Print(e) -> "put_in_svg( " ^ create_expr e ^ ");\n"
        | Ast.LineVar(e1, e2) -> "put_in_svg (" ^ create_expr e1 ^ "," ^ create_expr e2 ^");\n"
        | Ast.LineRaw(e1, e2, e3, e4) -> "put_in_svg (" ^ create_expr e1 ^ "," ^ create_expr e2 
