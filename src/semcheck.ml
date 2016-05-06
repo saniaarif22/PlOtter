@@ -208,6 +208,40 @@ let check stmts =
                 if ( (tv = Sast.ListNum && te=Sast.Num) || (tv = Sast.ListPoint && te=Sast.Point ) || (tv = Sast.ListString && te=Sast.String) || (tv = Sast.ListBool && te=Sast.Bool))
                 then Sast.Append(sv, se)
                 else fail ("Invalid type append. cannot append " ^ (type_to_str te) ^ " to " ^ (type_to_str tv))
+            | Ast.Remove(v, e) -> 
+                let sv = expr env v in
+                let se = expr env e in
+                let tv = typeof sv in
+                let te = typeof se in
+                if ( (tv = Sast.ListNum) || (tv = Sast.ListPoint) || (tv = Sast.ListString) || (tv = Sast.ListBool))
+                then
+                    if ( te=Sast.Num )
+                    then Sast.Remove(sv, se)
+                    else fail("The 'index' in *.pop(index) should be of num type only. It cannot be of type " ^ (type_to_str te))
+                else fail ("'access' operations can be performed only on List variables.")
+            | Ast.Access(v, e) -> 
+                let sv = expr env v in
+                let se = expr env e in
+                let tv = typeof sv in
+                let te = typeof se in
+                if ( (tv = Sast.ListNum) || (tv = Sast.ListPoint) || (tv = Sast.ListString) || (tv = Sast.ListBool))
+                then
+                    if ( te=Sast.Num )
+                    then Sast.Access(sv, se)
+                    else fail("The 'index' in list_elem.at(index)  should be of num type only." ^ (type_to_str te))
+                else fail ("'access' operations can be performed only on List variables.")
+            | Ast.Pop(v) -> 
+                let sv = expr env v in
+                let tv = typeof sv in
+                if ( (tv = Sast.ListNum) || (tv = Sast.ListPoint) || (tv = Sast.ListString) || (tv = Sast.ListBool))
+                then Sast.Pop(sv)
+                else fail ("'pop()' can be performed only on List variables.")
+            | Ast.Length(v) -> 
+                let sv = expr env v in
+                let tv = typeof sv in
+                if ( (tv = Sast.ListNum) || (tv = Sast.ListPoint) || (tv = Sast.ListString) || (tv = Sast.ListBool))
+                then Sast.Length(sv)
+                else fail ("'length()' can be performed only on List variables.")
             | Ast.Var_Decl(dt, id) -> 
                 (try 
                 ignore (StringMap.find id !(List.hd env.var_types)); 
