@@ -5,7 +5,8 @@
 %token EQUAL NEQ LESS GREATER LEQ GEQ
 %token AND OR NOT
 %token SEMI COMMA COMMENT OF COLON
-%token STRING NUM BOOL POINT NONE LIST HASH APPEND
+%token STRING NUM BOOL POINT NONE LIST HASH 
+%token APPEND POP REMOVE AT LENGTH OF
 %token TRUE FALSE
 %token RETURN IF ELSE FOR WHILE END BREAK CONTINUE THEN FN
 %token PRINT
@@ -101,11 +102,13 @@ code:
 
     stmt:
         | other_stmt { $1 }
-        | func_stmt  { $1 } 
+/* Function to be done later  
+        | func_stmt  { $1 }  
     
     func_stmt:
         | fdecl { $1 }
-    
+*/
+
     other_stmt:
         | expr EOL           { Expr($1) }
         | log_expr EOL       { Expr($1) }
@@ -116,18 +119,26 @@ code:
         | RETURN expr EOL    { Return($2) }
         | vdecl EOL          { $1 }
         | loop EOL           { $1 }
-    
+        | EOL                { Noexpr }
+
+
     list_stmt:
-    | ID APPEND LPAREN expr RPAREN { Append( Id($1), $4)}
-    
+        | ID OF APPEND LPAREN expr RPAREN       { Append( Id($1), $5)}
+        | ID OF POP LPAREN RPAREN               { Pop( Id($1) ) }
+        | ID OF REMOVE LPAREN expr RPAREN       { Remove( Id($1), $5 ) }
+        | ID OF AT LPAREN expr RPAREN           { Access( Id($1), $5 ) }
+        | ID LBRACK expr  RBRACK                { Access( Id($1), $3 ) }
+        | ID OF LENGTH LPAREN  RPAREN           { Length( Id($1) ) }
+ 
+    list_assign:
+        | ID ASSIGN literal_list {Assign(Id($1), $3) }
+ 
     assign_stmt:
         | ID ASSIGN LPAREN expr COMMA expr RPAREN { Passign(Id($1),$4,$6)}
         | ID ASSIGN expr        { Assign(Id($1), $3) }
         | list_assign           { $1 }
     
-    list_assign:
-        | ID ASSIGN literal_list {Assign(Id($1), $3) }
- 
+    
     line:
         | LINE LPAREN ID COMMA ID RPAREN  { LineVar(Id($3), Id($5) )}
         | LINE LPAREN LPAREN expr COMMA expr RPAREN COMMA LPAREN expr COMMA expr RPAREN RPAREN { LineRaw($4, $6, $10, $12) }
@@ -149,7 +160,8 @@ code:
    ============================================= */
    
    /* No locals. as variables can be declared at any point */
-   fdecl:
+/*
+    fdecl:
         FN ID LPAREN args_opt RPAREN COLON EOL stmt_list END
         { { fname = $2;
             args = $4;
@@ -165,13 +177,11 @@ code:
 
     arg:
         data_type ID    { ($1, $2) }
-        
+  */      
     
 /* =============================================
                     Expressions     
    ============================================= */
-   
-   /*  List and hash based operations left */
    
    log_expr:  
   | expr EQUAL  expr { Binop($1, Equal, $3) }

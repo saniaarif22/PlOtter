@@ -177,6 +177,7 @@ let check stmts =
 
         (* Convert ast stmt to sast stmt *)
         let rec stmt env = function
+            | Ast.Noexpr -> Sast.Noexpr
             | Ast.Expr(e) -> 
                 let se = expr env e in
                 let tp = typeof se in
@@ -196,9 +197,17 @@ let check stmts =
                 let se = expr env e in
                 let tv = typeof sv in
                 let te = typeof se in
-                if ( tv = te )
+                if ( tv = te || (te=Sast.List && (tv=Sast.ListNum || tv=Sast.ListString || tv=Sast.ListBool || tv=Sast.ListPoint) ) )
                 then Sast.Assign(sv, se)
                 else fail ("Invalid type assign. cannot assign " ^ (type_to_str te) ^ " to " ^ (type_to_str tv))
+            | Ast.Append(v, e) -> 
+                let sv = expr env v in
+                let se = expr env e in
+                let tv = typeof sv in
+                let te = typeof se in
+                if ( (tv = Sast.ListNum && te=Sast.Num) || (tv = Sast.ListPoint && te=Sast.Point ) || (tv = Sast.ListString && te=Sast.String) || (tv = Sast.ListBool && te=Sast.Bool))
+                then Sast.Append(sv, se)
+                else fail ("Invalid type append. cannot append " ^ (type_to_str te) ^ " to " ^ (type_to_str tv))
             | Ast.Var_Decl(dt, id) -> 
                 (try 
                 ignore (StringMap.find id !(List.hd env.var_types)); 

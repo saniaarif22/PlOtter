@@ -25,6 +25,7 @@ type tstmt =
   | For of tstmt * texpr * tstmt * tstmt list
   | While of texpr * tstmt list
   | Return of texpr
+  | Noexpr
 
 type program = tstmt list
 
@@ -64,6 +65,7 @@ let rec string_of_texpr = function
 
 let rec string_of_tstmt = function
     Expr(expr, t) -> string_of_texpr expr ^ "\n" ^ typeof t
+  | Noexpr -> ""
   | Var_Decl(tp, id, t) -> tp ^ " " ^ id ^ "\n" ^ typeof t
   | List_Decl(tp, id, t) -> "list" ^ tp ^ " " ^ id ^ "\n" ^ typeof t
   | Passign(v, e1, e2) -> string_of_texpr v ^ " = (" ^ ( string_of_texpr e1 ) ^ "," ^ ( string_of_texpr e2 ) ^ ")\n"

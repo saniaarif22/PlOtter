@@ -23,7 +23,7 @@ rule token = parse
 | ']' { RBRACK }
 | ',' { COMMA }
 | '#' { COMMENT }
-(* | '.' { OF }    *)
+| '.' { OF }    
 | '=' { ASSIGN }
 | "and" { AND }
 | "or" { OR }
@@ -48,8 +48,15 @@ rule token = parse
 | "none" { NONE }
 | "list" { LIST }
 | "hash" { HASH }
+
+(* List related stuff *)
 (* the '.' in front of append ensures its used as a function *)
-| ".append" { APPEND }
+| "append" { APPEND }
+| "pop"    { POP }
+| "remove" { REMOVE }
+| "at"     { AT }
+| "length" { LENGTH }
+
 | "fn" { FN }
 | "return" { RETURN }
 | "true" { TRUE }

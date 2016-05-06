@@ -47,6 +47,7 @@ let convert (stmt_list) =
             create_expr v ^ "[0] = " ^ ( create_expr e1 ) ^ ";\n" ^ 
             create_expr v ^ "[1] = " ^ ( create_expr e2 ) ^ ";\n"
    	   | Ast.Assign(v, e) -> create_expr v ^ " = " ^ ( create_expr e ) ^ ";\n"
+   	   | Ast.Append(v, e) -> create_expr v ^ ".push_back(" ^ ( create_expr e ) ^ ");\n"
    	   | Ast.Print(e) -> "put_in_svg( " ^ create_expr e ^ ");\n"
        | Ast.LineVar(e1, e2) -> "put_in_svg (" ^ create_expr e1 ^ "," ^ create_expr e2 ^");\n"
        | Ast.LineRaw(e1, e2, e3, e4) -> "put_in_svg (" ^ create_expr e1 ^ "," ^ create_expr e2 
@@ -57,6 +58,7 @@ let convert (stmt_list) =
        | Ast.While(e, body) -> "while (" ^ create_expr e ^ ") { \n" ^ String.concat "" (List.map create_stmt body)
                                       ^ "\n } \n"
    	   | Ast.Return(expr) -> "return " ^ create_expr expr ^ ";\n"
+   	   | Ast.Noexpr       -> ""
 
    in
    

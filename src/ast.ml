@@ -17,7 +17,6 @@ type expr =
   | Binop of expr * ops * expr          (* Binary Ops *)
   | Id of string                        (* identifiers *)
   | Bool of bool                        (* True *)
-  | Noexpr
 
 
 type stmt = (* Statements *)
@@ -27,12 +26,17 @@ type stmt = (* Statements *)
   | Passign of expr * expr * expr           (* (type, p1, p2) *)
   | Assign of expr * expr                   (* a = 2 *)
   | Append of expr * expr                   (* a.append(7) *)
+  | Pop of expr                             (* a.pop() *)
+  | Remove of expr * expr                   (* a.remove(3) *)
+  | Access of expr * expr                   (* a.at(3), a[3] *)
+  | Length of expr                          (* a.length() *)
   | Print of expr                           (* print 5 *)
   | LineVar of expr * expr                  (* line(p,q) *)
   | LineRaw of expr * expr * expr * expr    (* line((3,4), (7,9)) *)
   | For of stmt * expr * stmt * stmt list   (* for i=0; i<5; i=i+1: *)
   | While of expr * stmt list
   | Return of expr
+  | Noexpr
 
 
 type program = stmt list
@@ -57,7 +61,6 @@ let rec string_of_expr = function
       | Greater -> ">" | Geq -> ">="
       ) ^ " " ^ string_of_expr e2
   | Bool(x) -> if x = True then "true" else "false"
-  | Noexpr -> ""
 
 
 let rec string_of_stmt = function
@@ -67,6 +70,10 @@ let rec string_of_stmt = function
   | Passign(v, e1, e2) -> string_of_expr v ^ " = (" ^ ( string_of_expr e1 ) ^ "," ^ (string_of_expr e2) ^ ")\n"
   | Assign(v, e) -> string_of_expr v ^ " = " ^ ( string_of_expr e )
   | Append(v, e) -> string_of_expr v ^ ".append(" ^ ( string_of_expr e ) ^ ")\n"
+  | Pop(v) -> string_of_expr v ^ ".pop()\n"
+  | Remove(v, e) -> string_of_expr v ^ ".remove(" ^ ( string_of_expr e ) ^ ")\n"
+  | Access(v, e) -> string_of_expr v ^ ".at(" ^ ( string_of_expr e ) ^ ")\n"
+  | Length(v) -> string_of_expr v ^ ".length()\n"
   | Print(e) -> "print " ^ string_of_expr e ^ "\n"
   | LineVar(e1,e2)-> "line (" ^ string_of_expr e1 ^ "," ^ string_of_expr e2 ^ ")" ^ "\n"
   | LineRaw(e1,e2,e3,e4)-> "line ( (" ^ string_of_expr e1 ^ "," ^ string_of_expr e2 ^ ")" ^ "," ^ "(" ^ string_of_expr e3
@@ -76,6 +83,7 @@ let rec string_of_stmt = function
                             ^ "\nend\n"
   | While(e, body) -> "while " ^ string_of_expr e ^ " :\n" ^ (String.concat "\n\t" (List.map string_of_stmt body)) ^ "\nend\n"
   | Return(expr) -> "return " ^ string_of_expr expr ^ "\n"
+  | Noexpr -> ""
 
 let string_of_program stmts =
   String.concat "\n" (List.map string_of_stmt stmts)

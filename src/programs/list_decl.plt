@@ -9,7 +9,6 @@ b = ["c"]
 b = ["a","b","c"]
 d = []
 d = [true]
+
 d = [true, false, true]
-d.append(6)
-num a
-d.append(a)
+a.append(6)
