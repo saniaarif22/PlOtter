@@ -1,0 +1,3 @@
+tests/*.cpp
+tests/*.svg
+programs/*.cpp

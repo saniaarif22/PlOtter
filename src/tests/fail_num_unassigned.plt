@@ -1,2 +1,0 @@
-num a
-print a

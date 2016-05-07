@@ -208,7 +208,7 @@ code:
   | arith_expr TIMES  arith_expr { Binop($1, Mul,  $3) }
   | arith_expr DIVIDE arith_expr { Binop($1, Div,   $3) }
   | arith_expr MOD arith_expr    { Binop($1, Mod,   $3) }
-  | atom             { $1 }
+  | atom                { $1 }
   
   atom:
   | literal          { $1 }

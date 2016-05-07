@@ -1,2 +1,0 @@
-bool a
-print a

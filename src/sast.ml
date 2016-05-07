@@ -6,11 +6,11 @@ type t =  Num | Bool | String | Point | List
 
 type texpr =
       Literal_Num of float * t
-        | Literal_Str of string * t
-            | Literal_List of texpr list * t
-        | Binop of texpr * Ast.ops * texpr * t
-        | Id of string * t
-        | Bool of bool * t
+    | Literal_Str of string * t
+    | Literal_List of texpr list * t
+    | Binop of texpr * Ast.ops * texpr * t
+    | Id of string * t
+    | Bool of bool * t
 
 type tstmt =
     Expr of texpr * t

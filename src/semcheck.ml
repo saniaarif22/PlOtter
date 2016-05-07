@@ -308,7 +308,10 @@ let check stmts =
                 Sast.For(ss1, se1, ss2, List.map (fun s -> stmt env s) body)
             | Ast.While(e, body) ->
                 let se = expr env e in
-                Sast.While(se, List.map (fun s -> stmt env s) body)
+                let te = typeof se in 
+                if ( te = Sast.Num || te = Sast.Bool)
+                then Sast.While(se, List.map (fun s -> stmt env s) body)
+                else fail("The condition in while should give eiether num or bool. Not of type " ^type_to_str te)
             | Ast.Ifelse(e, s1, s2) ->
                 let se = expr env e in
                 Sast.Ifelse(se, List.map (fun s -> stmt env s) s1, List.map (fun s -> stmt env s) s2)
