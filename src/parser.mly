@@ -112,7 +112,6 @@ code:
     other_stmt:
         | expr EOL           { Expr($1) }
         | cond_stmt EOL      { $1 }
-        | log_expr EOL       { Expr($1) }
         | list_stmt EOL      { $1 }
         | assign_stmt EOL    { $1 }
         | PRINT expr EOL     { Print($2) }
@@ -149,7 +148,7 @@ code:
 
     loop_stmt:
         | FOR assign_stmt SEMI log_expr SEMI assign_stmt COLON EOL other_stmt_list END { For($2, $4, $6, List.rev $9) }
-        | WHILE log_expr COLON EOL other_stmt_list END {While($2, List.rev $5)}
+        | WHILE expr COLON EOL other_stmt_list END {While($2, List.rev $5)}
         
     other_stmt_list:
         { [] }
@@ -186,6 +185,11 @@ code:
 /* =============================================
                     Expressions     
    ============================================= */
+  
+  expr: 
+  | arith_expr          { $1 }
+  | log_expr            { $1 }
+  | LPAREN expr RPAREN  { $2 }
    
    log_expr:  
   | expr EQUAL  expr { Binop($1, Equal, $3) }
@@ -196,12 +200,6 @@ code:
   | expr GEQ  expr { Binop($1, Geq,   $3) }
   | log_expr AND log_expr { Binop($1, And, $3) }
   | log_expr OR log_expr { Binop($1, Or, $3) }
-   
-  
-  expr: 
-  | arith_expr          { $1 }
-  | LPAREN expr RPAREN  { $2 }
-  
   
   
   arith_expr : 

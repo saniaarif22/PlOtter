@@ -59,7 +59,7 @@ let convert (stmt_list) =
        | Ast.For(s1, e1, s2, body) -> "for (" ^ create_stmt s1 ^ " " ^ create_expr e1 ^ " ; "
                                       ^ remSemColon (create_stmt s2 ) ^ " ) { \n" 
                                       ^ String.concat "" (List.map create_stmt body) ^ "\n } \n"
-       | Ast.While(e, body) -> "while (" ^ create_expr e ^ ") { \n" ^ String.concat "" (List.map create_stmt body)
+       | Ast.While(e, body) -> "while (" ^ create_expr e ^ ") { \n" ^ String.concat "" (List.map create_stmt body) ^ "}\n"
        | Ast.Ifelse(e, s1, s2) -> "if (" ^ create_expr e ^ ") { \n" ^ String.concat "" (List.map create_stmt s1)
             ^ "} else { \n" ^ String.concat "" (List.map create_stmt s2) ^ "}\n"
    	   | Ast.Return(expr) -> "return " ^ create_expr expr ^ ";\n"
