@@ -2,8 +2,6 @@
 fn addOne():
     num a
     a = 3
-    num a
-    a = 3
 end
 
 #addOne(8)
