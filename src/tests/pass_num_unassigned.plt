@@ -1,0 +1,2 @@
+num a
+print a

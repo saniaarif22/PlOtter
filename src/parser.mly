@@ -147,7 +147,7 @@ code:
         | LINE LPAREN LPAREN expr COMMA expr RPAREN COMMA LPAREN expr COMMA expr RPAREN RPAREN { LineRaw($4, $6, $10, $12) }
 
     loop_stmt:
-        | FOR assign_stmt SEMI log_expr SEMI assign_stmt COLON EOL other_stmt_list END { For($2, $4, $6, List.rev $9) }
+        | FOR assign_stmt SEMI expr SEMI assign_stmt COLON EOL other_stmt_list END { For($2, $4, $6, List.rev $9) }
         | WHILE expr COLON EOL other_stmt_list END {While($2, List.rev $5)}
         
     other_stmt_list:

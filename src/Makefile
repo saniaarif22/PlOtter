@@ -3,8 +3,6 @@ OBJS = ast.cmo sast.cmo parser.cmo scanner.cmo semcheck.cmo codegen.cmo plotter.
 TARFILES = Makefile  scanner.mll parser.mly \
 	ast.ml codegen.ml plotter.ml
 
-test :
-	python test.py
 plotter : $(OBJS)
 	ocamlc -o plotter $(OBJS)
 
@@ -25,7 +23,8 @@ parser.ml parser.mli : parser.mly
 clean :
 	rm -f plotter parser.ml parser.mli scanner.ml *.svg testall.log \
 	*.cmo *.cmi *.out *.diff
-
+test:
+	python test.py
 # 
 ast.cmo: 
 ast.cmx:
