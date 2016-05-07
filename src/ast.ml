@@ -30,6 +30,7 @@ type stmt = (* Statements *)
   | Remove of expr * expr                   (* a.remove(3) *)
   | Access of expr * expr                   (* a.at(3), a[3] *)
   | Length of expr                          (* a.length() *)
+  | Fcall  of expr * expr list            (* a.() *)
   | Print of expr                           (* print 5 *)
   | LineVar of expr * expr                  (* line(p,q) *)
   | LineRaw of expr * expr * expr * expr    (* line((3,4), (7,9)) *)
@@ -38,6 +39,13 @@ type stmt = (* Statements *)
   | Ifelse of expr * stmt list * stmt list
   | Return of expr
   | Noexpr
+  | Fdecl of fdecl and
+       fdecl = {
+        fname : string;
+        args  : (string * string) list;
+        body  : stmt list;
+      }
+  
 
 
 type program = stmt list
@@ -63,7 +71,7 @@ let rec string_of_expr = function
       ) ^ " " ^ string_of_expr e2
   | Bool(x) -> if x = True then "true" else "false"
 
-
+      
 let rec string_of_stmt = function
     Expr(expr) -> string_of_expr expr ^ ""
   | Var_Decl(tp, id) -> tp ^ " " ^ id ^ "\n"
@@ -75,6 +83,7 @@ let rec string_of_stmt = function
   | Remove(v, e) -> string_of_expr v ^ ".remove(" ^ ( string_of_expr e ) ^ ")\n"
   | Access(v, e) -> string_of_expr v ^ ".at(" ^ ( string_of_expr e ) ^ ")\n"
   | Length(v) -> string_of_expr v ^ ".length()\n"
+  | Fcall(v, el) -> string_of_expr v ^ "("^ (String.concat "," (List.map string_of_expr el)) ^")\n"
   | Print(e) -> "print " ^ string_of_expr e ^ "\n"
   | LineVar(e1,e2)-> "line (" ^ string_of_expr e1 ^ "," ^ string_of_expr e2 ^ ")" ^ "\n"
   | LineRaw(e1,e2,e3,e4)-> "line ( (" ^ string_of_expr e1 ^ "," ^ string_of_expr e2 ^ ")" ^ "," ^ "(" ^ string_of_expr e3
@@ -86,6 +95,13 @@ let rec string_of_stmt = function
   | Ifelse(e, succ_stmt, else_stmt) -> "if " ^ string_of_expr e ^ " :\n" ^ (String.concat "\n\t" (List.map string_of_stmt succ_stmt)) ^ "\nelse:\n" ^ (String.concat "\n\t" (List.map string_of_stmt else_stmt)) ^ "end\n"
   | Return(expr) -> "return " ^ string_of_expr expr ^ "\n"
   | Noexpr -> ""
+  | Fdecl(f) -> string_of_fdecl f and
+  string_of_fdecl fdecl =
+      "fn " ^ fdecl.fname ^ "(" ^ 
+        ( String.concat ", " (List.map (fun (a,b) ->(a ^ " " ^ b) ) fdecl.args) ) ^
+         "):\n" ^
+      ( String.concat "" (List.map string_of_stmt fdecl.body) ) ^
+      "\nend\n"
 
 let string_of_program stmts =
   String.concat "\n" (List.map string_of_stmt stmts)

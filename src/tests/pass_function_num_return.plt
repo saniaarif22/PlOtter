@@ -1,5 +1,8 @@
-fn addOne(num a):
-    return a+1
+
+fn addOne(num a, num b, bool c):
+    num a
+    a = 3
 end
 
 addOne(8)
+

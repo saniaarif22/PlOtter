@@ -102,12 +102,10 @@ code:
 
     stmt:
         | other_stmt { $1 }
-/* Function to be done later  
         | func_stmt  { $1 }  
     
     func_stmt:
         | fdecl { $1 }
-*/
 
     other_stmt:
         | expr EOL           { Expr($1) }
@@ -116,6 +114,7 @@ code:
         | assign_stmt EOL    { $1 }
         | PRINT expr EOL     { Print($2) }
         | line EOL           { $1 }
+        | fcall EOL          { $1 }
         | RETURN expr EOL    { Return($2) }
         | vdecl EOL          { $1 }
         | loop_stmt EOL           { $1 }
@@ -163,24 +162,32 @@ code:
    ============================================= */
    
    /* No locals. as variables can be declared at any point */
-/*
+
     fdecl:
-        FN ID LPAREN args_opt RPAREN COLON EOL stmt_list END
-        { { fname = $2;
+        FN ID LPAREN args_opt RPAREN COLON EOL stmt_list END EOL
+        { Fdecl({ fname = $2;
             args = $4;
-            body = List.rev $8 } }
-    
+            body = List.rev $8 }) }
+
     args_opt:
          { [] }
         | args_list { List.rev $1 }
-     
+
     args_list:
           arg                     { [$1] }
         | args_list COMMA arg { $3 :: $1 }
 
     arg:
         data_type ID    { ($1, $2) }
-  */      
+
+    /* Function Call */
+    fcall:
+        | ID LPAREN fparam RPAREN   { Fcall(Id($1), $3) }
+
+    fparam:
+        | expr                  { [$1] }
+        | fparam COMMA expr     { $3 :: $1 }
+        
     
 /* =============================================
                     Expressions     
