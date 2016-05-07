@@ -48,7 +48,11 @@ type stmt = (* Statements *)
   
 
 
-type program = stmt list
+type program = {
+                    funcs : stmt list;
+                    main  : stmt list;
+               }
+                
 
 
 (* Pretty Print *)
@@ -103,5 +107,8 @@ let rec string_of_stmt = function
       ( String.concat "" (List.map string_of_stmt fdecl.body) ) ^
       "\nend\n"
 
-let string_of_program stmts =
-  String.concat "\n" (List.map string_of_stmt stmts)
+let string_of_program prog =
+  String.concat "\n" (List.map string_of_stmt prog.funcs)
+  ^ "\n-----------\n" ^
+  String.concat "\n" (List.map string_of_stmt prog.main)
+  

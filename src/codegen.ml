@@ -1,8 +1,8 @@
 open Ast
 open Semcheck
 
-let convert (stmt_list) =
-  check stmt_list;
+let convert prog =
+  check prog.main;
   let rec create_expr = function
       | Ast.Literal_Num(l) -> (string_of_float l) ^ "0"
       | Ast.Literal_Str(l) -> l 
@@ -64,6 +64,13 @@ let convert (stmt_list) =
             ^ "} else { \n" ^ String.concat "" (List.map create_stmt s2) ^ "}\n"
    	   | Ast.Return(expr) -> "return " ^ create_expr expr ^ ";\n"
    	   | Ast.Noexpr       -> ""
+   	   | Ast.Fdecl(f)     -> string_of_fdecl f and
+              string_of_fdecl fdecl =
+                  "void " ^ fdecl.fname ^ "(" ^ 
+                    ( String.concat ", " (List.map (fun (a,b) ->(a ^ " " ^ b) ) fdecl.args) ) ^
+                     "){\n" ^
+                  ( String.concat "" (List.map create_stmt fdecl.body) ) ^
+                  "\n}\n"
 
    in
    
@@ -96,9 +103,13 @@ let convert (stmt_list) =
     "  f << content;\n"^
     "  f << \"\\n</text>\\n\";\n"^
     "}\n"^
-
-    "// Read input and generate SVG image\n"^
-
+    
+    "//All user & library functions goes here\n" ^
+    
+    String.concat "" (List.map create_stmt prog.funcs) ^
+    
+    "//Main prog starts\n"^
+    
     "int main() {\n"^
     (* change the name to be the filename.svg based on the file which is ran *)
     "  f.open (\"hello.svg\");\n"^
@@ -107,7 +118,7 @@ let convert (stmt_list) =
     "  f << \"<svg xmlns=\\\"http://www.w3.org/2000/svg\\\" xmlns:xlink=\\\"http://www.w3.org/1999/xlink\\\" width=\\\"1024\\\" height=\\\"768\\\">\"; \n"^
     "  f << \"\\n\"; \n"^
 
-   String.concat "" (List.map create_stmt stmt_list) ^
+   String.concat "" (List.map create_stmt prog.main) ^
 
     "  f << \"</svg>\"; \n" ^
    "return 0;\n}\n"

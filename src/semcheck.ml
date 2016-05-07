@@ -242,6 +242,10 @@ let check stmts =
                 if ( (tv = Sast.ListNum) || (tv = Sast.ListPoint) || (tv = Sast.ListString) || (tv = Sast.ListBool))
                 then Sast.Length(sv)
                 else fail ("'length()' can be performed only on List variables.")
+            | Ast.Fcall(v, el) -> 
+                let sv = expr env v in
+                let sel = List.map (fun s -> expr env s) el in
+                Sast.Fcall(sv, sel)
             | Ast.Var_Decl(dt, id) -> 
                 (try 
                 ignore (StringMap.find id !(List.hd env.var_types)); 
@@ -316,6 +320,19 @@ let check stmts =
                 let se = expr env e in
                 Sast.Ifelse(se, List.map (fun s -> stmt env s) s1, List.map (fun s -> stmt env s) s2)
             | Ast.Return(e) -> Sast.Return(expr env e)
+            | Ast.Fdecl(f) -> 
+                    (*
+                    let fnEnv = {      
+                            var_types =  [ref StringMap.empty];
+                            var_inds =  [ref StringMap.empty];
+                    } in
+                    *)
+                    let fstms = List.map (fun s -> stmt env s) f.body in
+                    Sast.Fdecl({
+                        fname = f.fname;
+                        args = f.args;
+                        body  = fstms;
+                    })
             
         in
         List.map (fun s -> stmt env s) stmts_list

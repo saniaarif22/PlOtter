@@ -33,11 +33,14 @@
 %%
 
 program:
-  code EOF { $1 }
+  stmt EOF { $1 }
   
-code:
-   /* nothing */    { [] }
- | code stmt        { $2 :: $1}
+stmt:
+    /* nothing */       { { funcs=[]; main=[] } }
+    | func_stmt stmt    { { funcs = $1::$2.funcs; main= $2.main} }    
+    | other_stmt stmt   { { funcs = $2.funcs; main= $1::$2.main} }
+   
+   
 
     
 /* =============================================
@@ -100,9 +103,6 @@ code:
                     Statements     
    ============================================= */
 
-    stmt:
-        | other_stmt { $1 }
-        | func_stmt  { $1 }  
     
     func_stmt:
         | fdecl { $1 }
@@ -155,7 +155,7 @@ code:
     
     stmt_list:
          { [] }
-        | stmt_list stmt { $2 :: $1 }
+        | stmt_list other_stmt { $2 :: $1 }
 
 /* =============================================
                     Functions     

@@ -4,5 +4,8 @@ fn addOne(num a, num b, bool c):
     a = 3
 end
 
-addOne(8)
+#addOne(8)
+num a
+a = 5
+a = a*5
 

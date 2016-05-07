@@ -23,6 +23,7 @@ type tstmt =
   | Access of texpr * texpr
   | Pop    of texpr
   | Length  of texpr
+  | Fcall  of texpr * texpr list
   | Print of texpr
   | LineVar of texpr * texpr
   | LineRaw of texpr * texpr * texpr * texpr
@@ -31,6 +32,12 @@ type tstmt =
   | Ifelse of texpr * tstmt list * tstmt list
   | Return of texpr
   | Noexpr
+  | Fdecl of fdecl and
+       fdecl = {
+        fname : string;
+        args  : (string * string) list;
+        body  : tstmt list;
+      }
 
 type program = tstmt list
 
@@ -80,6 +87,7 @@ let rec string_of_tstmt = function
   | Access(v, e) -> string_of_texpr v ^ ".at(" ^ ( string_of_texpr e ) ^ ")"
   | Pop(v) -> string_of_texpr v ^ ".pop()"
   | Length(v)  -> string_of_texpr v ^ ".length()"
+  | Fcall(v, el)  -> string_of_texpr v ^ "("^ (String.concat "," (List.map string_of_texpr el)) ^")\n"
   | Print(e) -> "print " ^ string_of_texpr e ^ "\n"
   | LineVar(e1,e2)-> "line (" ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ")" ^ "\n"
   | LineRaw(e1,e2,e3,e4)-> "line ( (" ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ")" ^ "," ^ "("
@@ -90,6 +98,12 @@ let rec string_of_tstmt = function
   | While(e, body) -> "while " ^ string_of_texpr e ^ " :\n" ^ (String.concat "\n\t" (List.map string_of_tstmt body)) ^ "\nend\n"
   | Ifelse(e, s1, s2) -> "if " ^ string_of_texpr e ^ " :\n" ^ (String.concat "\n\t" (List.map string_of_tstmt s1)) ^ "\nelse:\n" ^ (String.concat "\n\t" (List.map string_of_tstmt s2)) ^ "\nend\n"
   | Return(expr) -> "return " ^ string_of_texpr expr ^ "\n"
-
+  | Fdecl(f) -> string_of_fdecl f and
+  string_of_fdecl fdecl =
+      "fn " ^ fdecl.fname ^ "(" ^ 
+        ( String.concat ", " (List.map (fun (a,b) ->(a ^ " " ^ b) ) fdecl.args) ) ^
+         "):\n" ^
+      ( String.concat "" (List.map string_of_tstmt fdecl.body) ) ^
+      "\nend\n"
 let string_of_tprogram stmts =
   String.concat "\n" (List.map string_of_tstmt stmts)
