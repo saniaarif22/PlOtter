@@ -2,6 +2,7 @@ open Ast
 open Semcheck
 
 let convert prog =
+  check prog.funcs;
   check prog.main;
   let rec create_expr = function
       | Ast.Literal_Num(l) -> (string_of_float l) ^ "0"

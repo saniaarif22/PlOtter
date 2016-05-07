@@ -321,13 +321,11 @@ let check stmts =
                 Sast.Ifelse(se, List.map (fun s -> stmt env s) s1, List.map (fun s -> stmt env s) s2)
             | Ast.Return(e) -> Sast.Return(expr env e)
             | Ast.Fdecl(f) -> 
-                    (*
                     let fnEnv = {      
                             var_types =  [ref StringMap.empty];
                             var_inds =  [ref StringMap.empty];
                     } in
-                    *)
-                    let fstms = List.map (fun s -> stmt env s) f.body in
+                    let fstms = List.map (fun s -> stmt fnEnv s) f.body in
                     Sast.Fdecl({
                         fname = f.fname;
                         args = f.args;
