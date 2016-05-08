@@ -24,7 +24,7 @@ type tstmt =
   | Remove of texpr * texpr
   | Access of texpr * texpr
   | Pop    of texpr
-  | Fcall  of texpr * texpr list
+  | Fcall  of string * texpr list
   | Print of texpr
   | LineVar of texpr * texpr
   | LineRaw of texpr * texpr * texpr * texpr
@@ -89,7 +89,7 @@ let rec string_of_tstmt = function
   | Remove(v, e) -> string_of_texpr v ^ ".remove(" ^ ( string_of_texpr e ) ^ ")"
   | Access(v, e) -> string_of_texpr v ^ ".at(" ^ ( string_of_texpr e ) ^ ")"
   | Pop(v) -> string_of_texpr v ^ ".pop()"
-  | Fcall(v, el)  -> string_of_texpr v ^ "("^ (String.concat "," (List.map string_of_texpr el)) ^")\n"
+  | Fcall(v, el)  ->  v ^ "("^ (String.concat "," (List.map string_of_texpr el)) ^")\n"
   | Print(e) -> "print " ^ string_of_texpr e ^ "\n"
   | LineVar(e1,e2)-> "line (" ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ")" ^ "\n"
   | LineRaw(e1,e2,e3,e4)-> "line ( (" ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ")" ^ "," ^ "("

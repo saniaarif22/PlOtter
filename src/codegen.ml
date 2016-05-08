@@ -86,6 +86,7 @@ let convert prog =
             ^ "} else { \n" ^ String.concat "" (List.map create_stmt s2) ^ "}\n"
    	   | Ast.Return(expr) -> "return " ^ create_expr expr ^ ";\n"
    	   | Ast.Noexpr       -> ""
+   	   | Ast.Fcall(v,el)  -> v ^ "("^ (String.concat "," ( List.map (fun s ->create_expr s) el)) ^");"
    	   | Ast.Fdecl(f)     -> string_of_fdecl f and
               string_of_fdecl fdecl =
                   "void " ^ fdecl.fname ^ "(" ^ 

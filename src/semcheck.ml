@@ -252,9 +252,8 @@ let check stmts =
                 then Sast.Pop(sv)
                 else fail ("'pop()' can be performed only on List variables.")
             | Ast.Fcall(v, el) -> 
-                let sv = expr env v in
                 let sel = List.map (fun s -> expr env s) el in
-                Sast.Fcall(sv, sel)
+                Sast.Fcall(v, sel)
             | Ast.Var_Decl(dt, id) -> 
                 (try 
                 ignore (StringMap.find id !(List.hd env.var_types)); 

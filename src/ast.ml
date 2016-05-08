@@ -30,7 +30,7 @@ type stmt = (* Statements *)
   | Pop of expr                             (* a.pop() *)
   | Remove of expr * expr                   (* a.remove(3) *)
   | Access of expr * expr                   (* a.at(3), a[3] *)
-  | Fcall  of expr * expr list              (* a.() *)
+  | Fcall  of string * expr list              (* a.() *)
   | Print of expr                           (* print 5 *)
   | LineVar of expr * expr                  (* line(p,q) *)
   | LineRaw of expr * expr * expr * expr    (* line((3,4), (7,9)) *)
@@ -89,7 +89,7 @@ let rec string_of_stmt = function
   | Pop(v) -> string_of_expr v ^ ".pop()\n"
   | Remove(v, e) -> string_of_expr v ^ ".remove(" ^ ( string_of_expr e ) ^ ")\n"
   | Access(v, e) -> string_of_expr v ^ ".at(" ^ ( string_of_expr e ) ^ ")\n"
-  | Fcall(v, el) -> string_of_expr v ^ "("^ (String.concat "," (List.map string_of_expr el)) ^")\n"
+  | Fcall(v, el) ->  v ^ "("^ (String.concat "," (List.map string_of_expr el)) ^")\n"
   | Print(e) -> "print " ^ string_of_expr e ^ "\n"
   | LineVar(e1,e2)-> "line (" ^ string_of_expr e1 ^ "," ^ string_of_expr e2 ^ ")" ^ "\n"
   | LineRaw(e1,e2,e3,e4)-> "line ( (" ^ string_of_expr e1 ^ "," ^ string_of_expr e2 ^ ")" ^ "," ^ "(" ^ string_of_expr e3

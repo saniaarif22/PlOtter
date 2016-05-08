@@ -4,7 +4,7 @@ fn addOne():
     a = 3
 end
 
-#addOne()
+addOne()
 num a
 a = 5
 a = a*5

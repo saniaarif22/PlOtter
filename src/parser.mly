@@ -188,9 +188,10 @@ stmt:
 
     /* Function Call */
     fcall:
-        | ID LPAREN fparam RPAREN   { Fcall(Id($1), $3) }
+        | ID LPAREN fparam RPAREN   { Fcall($1, $3) }
 
     fparam:
+        {[]}
         | expr                  { [$1] }
         | fparam COMMA expr     { $3 :: $1 }
         
