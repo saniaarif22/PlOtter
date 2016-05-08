@@ -20,10 +20,10 @@ fn addFour(num aa, num b):
     print b
 end
 
-#addOne()
-#addTwo(3,3)
-#addThree(3)
-#addThree(3,0)
+addOne()
+addTwo(3,3)
+addThree(3)
+addFour(3,0)
 
 num a
 a = 5

@@ -5,7 +5,7 @@ fn addAll(num a, num b, num c):
     return d
 end
 
-#addOne(0,0,0)
+addOne(0,0,0)
 num a
 a = 5
 a = a*5
