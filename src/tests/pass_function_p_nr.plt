@@ -6,7 +6,7 @@ fn addOne(num a, num b, num c):
     print (a+b+c)
 end
 
-#addOne(0,0,0)
+addOne(0,0,0)
 num a
 a = 5
 a = a*5

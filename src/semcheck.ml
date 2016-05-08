@@ -4,8 +4,9 @@ open Ast
 module StringMap = Map.Make(String)
 
 type s_env = 
-        {      var_types :  string StringMap.t ref list;
+        {      var_types: string StringMap.t ref list;
                var_inds : int StringMap.t ref list;
+               f_list   : string list;
         }
     
 let check stmts =  
@@ -24,6 +25,12 @@ let check stmts =
             | hd :: tl -> if snd hd > cur then max (snd hd) tl else max cur tl
         in
         max 0 bindings
+    in
+    
+    let rec find_f_name lt s =  match lt with
+    | [] -> []
+    | hd :: tl ->  if hd=s then fail("Function name already exists")
+                   else find_f_name tl s
     in
     
     let type_to_str t = match t with 
@@ -65,8 +72,9 @@ let check stmts =
     
     (* build default symbol tables: *)
     let sast_env = 
-        {      var_types =  [ref StringMap.empty];
-               var_inds =  [ref StringMap.empty];
+        {      var_types    = [ref StringMap.empty];
+               var_inds     = [ref StringMap.empty];
+               f_list       = [];
         }
 
     in
@@ -323,17 +331,19 @@ let check stmts =
             | Ast.Return(e) -> Sast.Return(expr env e)
             | Ast.Fdecl(f) -> 
                     let fnEnv = {      
-                            var_types =  [ref StringMap.empty];
-                            var_inds =  [ref StringMap.empty];
+                            var_types   =  [ref StringMap.empty];
+                            var_inds    =  [ref StringMap.empty];
+                            f_list      =  [];
                     } in
                     let fargs = List.map (fun s -> stmt fnEnv s) f.args in
                     let fstms = List.map (fun s -> stmt fnEnv s) f.body in
+                    let c = find_f_name env.f_list f.fname in
+                    env.f_list = f.fname::env.f_list in
                     Sast.Fdecl({
                         fname = f.fname;
                         args  = fargs;
                         body  = fstms;
                     })
-            
         in
         List.map (fun s -> stmt env s) stmts_list
     in
