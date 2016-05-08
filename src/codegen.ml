@@ -75,6 +75,10 @@ let convert prog =
        | Ast.LineVar(e1, e2) -> "put_in_svg (" ^ create_expr e1 ^ "," ^ create_expr e2 ^");\n"
        | Ast.LineRaw(e1, e2, e3, e4) -> "put_in_svg (" ^ create_expr e1 ^ "," ^ create_expr e2 
                                       ^ "," ^ create_expr e3 ^ "," ^ create_expr e4 ^");\n"
+       | Ast.LinePX(e1, e2, e3) -> "put_in_svg (" ^ create_expr e1 ^ "," ^ create_expr e2 
+                                      ^ "," ^ create_expr e3 ^ ");\n"
+       | Ast.LineXP(e1, e2, e3) -> "put_in_svg (" ^ create_expr e1 ^ "," ^ create_expr e2 
+                                      ^ "," ^ create_expr e3 ^ ");\n"
        | Ast.For(s1, e1, s2, body) -> "for (" ^ create_stmt s1 ^ " " ^ create_expr e1 ^ " ; "
                                       ^ remSemColon (create_stmt s2 ) ^ " ) { \n" 
                                       ^ String.concat "" (List.map create_stmt body) ^ "\n } \n"
@@ -102,6 +106,16 @@ let convert prog =
     "void put_in_svg(float p1[], float p2[])\n"^
     "{"^
     "  f << \"<line x1='\" + to_string(p1[0]) + \"' y1='\"+  to_string(p1[1])+\"' x2='\"+ to_string(p2[0]) +\"' y2='\"+ to_string(p2[1]) +\"' style='stroke:rgb(0,0,0);stroke-width:1'/>\\n\"; \n" ^
+    "}\n"^
+
+    "void put_in_svg(float p1[], float p2, float p3)\n"^
+    "{"^
+    "  f << \"<line x1='\" + to_string(p1[0]) + \"' y1='\"+  to_string(p1[1])+\"' x2='\"+ to_string(p2) +\"' y2='\"+ to_string(p3) +\"' style='stroke:rgb(0,0,0);stroke-width:1'/>\\n\"; \n" ^
+    "}\n"^
+
+    "void put_in_svg(float p1, float p2, float p3[])\n"^
+    "{"^
+    "  f << \"<line x1='\" + to_string(p1) + \"' y1='\"+  to_string(p2)+\"' x2='\"+ to_string(p3[0]) +\"' y2='\"+ to_string(p3[1]) +\"' style='stroke:rgb(0,0,0);stroke-width:1'/>\\n\"; \n" ^
     "}\n"^
     
     "void put_in_svg(float x1, float y1, float x2, float y2)\n"^

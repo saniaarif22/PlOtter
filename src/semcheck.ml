@@ -306,6 +306,26 @@ let check stmts =
                 if( te1 = Sast.Num && te2 = Sast.Num && te3 = Sast.Num && te4 = Sast.Num )
                 then Sast.LineRaw(se1, se2, se3, se4)
                 else fail ("LineRaw has to be called with 4 nums")
+            | Ast.LinePX(e1, e2, e3) ->
+                let se1 = expr env e1 in
+                let se2 = expr env e2 in
+                let se3 = expr env e3 in
+                let te1 = typeof se1 in
+                let te2 = typeof se2 in
+                let te3 = typeof se3 in
+                if( te1 = Sast.Num && te2 = Sast.Num && te3 = Sast.Point )
+                then Sast.LineXP(se1, se2, se3)
+                else fail ("LineXP has to be called with 2 nums and 1 point")
+            | Ast.LineXP(e1, e2, e3) ->
+                let se1 = expr env e1 in
+                let se2 = expr env e2 in
+                let se3 = expr env e3 in
+                let te1 = typeof se1 in
+                let te2 = typeof se2 in
+                let te3 = typeof se3 in
+                if( te1 = Sast.Point && te2 = Sast.Num && te3 = Sast.Num )
+                then Sast.LinePX(se1, se2, se3)
+                else fail ("LinePX has to be called with 1 point and 2 nums")
             | Ast.For(s1, e1, s2, body) ->
                 let ss1 = stmt env s1 in
                 let se1 = expr env e1 in

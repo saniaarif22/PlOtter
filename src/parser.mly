@@ -148,6 +148,8 @@ stmt:
     line:
         | LINE LPAREN ID COMMA ID RPAREN  { LineVar(Id($3), Id($5) )}
         | LINE LPAREN LPAREN expr COMMA expr RPAREN COMMA LPAREN expr COMMA expr RPAREN RPAREN { LineRaw($4, $6, $10, $12) }
+        | LINE LPAREN expr COMMA expr COMMA ID RPAREN { LinePX($3, $5, Id($7)) }
+        | LINE LPAREN ID COMMA expr COMMA expr RPAREN { LineXP(Id($3), $5, $7) }
 
     loop_stmt:
         | FOR assign_stmt SEMI expr SEMI assign_stmt COLON EOL other_stmt_list END { For($2, $4, $6, List.rev $9) }

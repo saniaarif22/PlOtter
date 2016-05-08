@@ -28,6 +28,8 @@ type tstmt =
   | Print of texpr
   | LineVar of texpr * texpr
   | LineRaw of texpr * texpr * texpr * texpr
+  | LinePX of texpr * texpr * texpr
+  | LineXP of texpr * texpr * texpr
   | For of tstmt * texpr * tstmt * tstmt list
   | While of texpr * tstmt list
   | Ifelse of texpr * tstmt list * tstmt list
@@ -93,6 +95,8 @@ let rec string_of_tstmt = function
   | LineVar(e1,e2)-> "line (" ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ")" ^ "\n"
   | LineRaw(e1,e2,e3,e4)-> "line ( (" ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ")" ^ "," ^ "("
                             ^ string_of_texpr e3 ^ "," ^ string_of_texpr e4 ^ ") )\n"
+  | LinePX(e1, e2, e3)-> "line ( ( " ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ") ," ^ string_of_texpr e3 ^ ") \n"
+  | LineXP(e1, e2, e3)-> "line ( " ^ string_of_texpr e1 ^ ", (" ^ string_of_texpr e2 ^ "," ^ string_of_texpr e3 ^ ") )\n"
   | For(s1, e1, s2, body) -> "for " ^ string_of_tstmt s1 ^ " ; " ^ string_of_texpr e1 ^ " ; " ^ string_of_tstmt s2 ^ ": \n"
                             ^ ( String.concat "\n\t" (List.map string_of_tstmt body) )
                             ^ "\nend\n"
