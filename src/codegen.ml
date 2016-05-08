@@ -21,12 +21,9 @@ let convert prog =
       		| Greater -> ">" | Geq -> ">="
       		) ^ " " ^ create_expr e2
       | Ast.Bool(x) -> if x = True then "true" else "false"
-      | Ast.Length(v) -> create_expr v ^ ".size();\n"
+      | Ast.Length(v) -> create_expr v ^ ".size();"
    	   
    
-   in
-   let remSemColon s = 
-        Bytes.set s (String.length s - 1) ' '; s
    in
    let printFunArgs = function
        | Ast.Var_Decl(tp, id) -> 
@@ -40,11 +37,15 @@ let convert prog =
             (match tp with
                   "num" -> "vector <float>" ^ " *" ^ id
                 | "string" -> "vector <string>" ^ " " ^ id
-                | "point" -> "vector <array<float, 2>>" ^ " " ^ id ^ ";\n"
-                | _ -> "vector <bool>" ^ " " ^ id ^ ";\n"
+                | "point" -> "vector <array<float, 2>>" ^ " " ^ id
+                | _ -> "vector <bool>" ^ " " ^ id
             )
         | _ -> raise (Failure "Its not possible :P ")
    in
+   let remSemColon s = 
+        Bytes.set s (String.length s - 1) ' '; s
+   in
+   
    let rec create_stmt = function
    	   | Ast.Expr(expr) -> create_expr expr
    	   | Ast.Var_Decl(tp, id) -> 
@@ -66,7 +67,7 @@ let convert prog =
             (* Setting the point elements seperately *)
             create_expr v ^ "[0] = " ^ ( create_expr e1 ) ^ ";\n" ^ 
             create_expr v ^ "[1] = " ^ ( create_expr e2 ) ^ ";\n"
-   	   | Ast.Assign(v, e) -> create_expr v ^ " = " ^ ( create_expr e ) ^ ";\n"
+   	   | Ast.Assign(v, e) -> create_expr v ^ " = " ^ ( create_expr e ) ^ ";"
    	   | Ast.Append(v, e) -> create_expr v ^ ".push_back(" ^ ( create_expr e ) ^ ");\n"
    	   | Ast.Pop(v) -> create_expr v ^ ".pop_back();\n"
    	   | Ast.Remove(v,e) -> create_expr v ^ ".erase(" ^ (create_expr v) ^ ".begin() + " ^ ( create_expr e ) ^ ");\n"
@@ -75,8 +76,10 @@ let convert prog =
        | Ast.LineVar(e1, e2) -> "put_in_svg (" ^ create_expr e1 ^ "," ^ create_expr e2 ^");\n"
        | Ast.LineRaw(e1, e2, e3, e4) -> "put_in_svg (" ^ create_expr e1 ^ "," ^ create_expr e2 
                                       ^ "," ^ create_expr e3 ^ "," ^ create_expr e4 ^");\n"
+       | Ast.LinePX(e1, e2, e3) -> "put_in_svg (" ^ create_expr e1 ^ "," ^ create_expr e2 
+                                      ^ "," ^ create_expr e3 ^ ");\n"
        | Ast.For(s1, e1, s2, body) -> "for (" ^ create_stmt s1 ^ " " ^ create_expr e1 ^ " ; "
-                                      ^ remSemColon (create_stmt s2 ) ^ " ) { \n" 
+                                      ^ ( remSemColon (create_stmt s2 )) ^ " ) { \n" 
                                       ^ String.concat "" (List.map create_stmt body) ^ "\n } \n"
        | Ast.While(e, body) -> "while (" ^ create_expr e ^ ") { \n" ^ String.concat "" (List.map create_stmt body) ^ "}\n"
        | Ast.Ifelse(e, s1, s2) -> "if (" ^ create_expr e ^ ") { \n" ^ String.concat "" (List.map create_stmt s1)
@@ -102,6 +105,16 @@ let convert prog =
     "void put_in_svg(float p1[], float p2[])\n"^
     "{"^
     "  f << \"<line x1='\" + to_string(p1[0]) + \"' y1='\"+  to_string(p1[1])+\"' x2='\"+ to_string(p2[0]) +\"' y2='\"+ to_string(p2[1]) +\"' style='stroke:rgb(0,0,0);stroke-width:1'/>\\n\"; \n" ^
+    "}\n"^
+
+    "void put_in_svg(float p1[], float p2, float p3)\n"^
+    "{"^
+    "  f << \"<line x1='\" + to_string(p1[0]) + \"' y1='\"+  to_string(p1[1])+\"' x2='\"+ to_string(p2) +\"' y2='\"+ to_string(p3) +\"' style='stroke:rgb(0,0,0);stroke-width:1'/>\\n\"; \n" ^
+    "}\n"^
+
+    "void put_in_svg(float p1, float p2, float p3[])\n"^
+    "{"^
+    "  f << \"<line x1='\" + to_string(p1) + \"' y1='\"+  to_string(p2)+\"' x2='\"+ to_string(p3[0]) +\"' y2='\"+ to_string(p3[1]) +\"' style='stroke:rgb(0,0,0);stroke-width:1'/>\\n\"; \n" ^
     "}\n"^
     
     "void put_in_svg(float x1, float y1, float x2, float y2)\n"^
