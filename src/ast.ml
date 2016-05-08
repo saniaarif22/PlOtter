@@ -42,7 +42,7 @@ type stmt = (* Statements *)
   | Fdecl of fdecl and
        fdecl = {
         fname : string;
-        args  : (string * string) list;
+        args  : stmt list;
         body  : stmt list;
       }
   
@@ -102,7 +102,7 @@ let rec string_of_stmt = function
   | Fdecl(f) -> string_of_fdecl f and
   string_of_fdecl fdecl =
       "fn " ^ fdecl.fname ^ "(" ^ 
-        ( String.concat ", " (List.map (fun (a,b) ->(a ^ " " ^ b) ) fdecl.args) ) ^
+        ( String.concat ", " (List.map (fun s -> string_of_stmt s) fdecl.args) ) ^
          "):\n" ^
       ( String.concat "" (List.map string_of_stmt fdecl.body) ) ^
       "\nend\n"

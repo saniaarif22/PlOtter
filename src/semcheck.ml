@@ -325,10 +325,11 @@ let check stmts =
                             var_types =  [ref StringMap.empty];
                             var_inds =  [ref StringMap.empty];
                     } in
+                    let fargs = List.map (fun s -> stmt fnEnv s) f.args in
                     let fstms = List.map (fun s -> stmt fnEnv s) f.body in
                     Sast.Fdecl({
                         fname = f.fname;
-                        args = f.args;
+                        args  = fargs;
                         body  = fstms;
                     })
             

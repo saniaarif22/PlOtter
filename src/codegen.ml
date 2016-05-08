@@ -26,6 +26,22 @@ let convert prog =
    let remSemColon s = 
         Bytes.set s (String.length s - 1) ' '; s
    in
+   let printFunArgs = function
+       | Ast.Var_Decl(tp, id) -> 
+            (match tp with
+                  "num" -> "float" ^ " " ^ id
+                | "string" -> "string" ^ " " ^ id
+                | "point" -> "float" ^ " " ^ id ^ "[2]"
+                | _ -> "bool" ^ " " ^ id
+            ) 
+       | Ast.List_Decl(tp, id) -> 
+            (match tp with
+                  "num" -> "vector <float>" ^ " *" ^ id
+                | "string" -> "vector <string>" ^ " " ^ id
+                | "point" -> "vector <array<float, 2>>" ^ " " ^ id ^ ";\n"
+                | _ -> "vector <bool>" ^ " " ^ id ^ ";\n"
+            )  
+   in
    let rec create_stmt = function
    	   | Ast.Expr(expr) -> create_expr expr
    	   | Ast.Var_Decl(tp, id) -> 
@@ -68,7 +84,7 @@ let convert prog =
    	   | Ast.Fdecl(f)     -> string_of_fdecl f and
               string_of_fdecl fdecl =
                   "void " ^ fdecl.fname ^ "(" ^ 
-                    ( String.concat ", " (List.map (fun (a,b) ->(a ^ " " ^ b) ) fdecl.args) ) ^
+                    ( String.concat ", " (List.map (fun s -> printFunArgs s) fdecl.args) ) ^
                      "){\n" ^
                   ( String.concat "" (List.map create_stmt fdecl.body) ) ^
                   "\n}\n"

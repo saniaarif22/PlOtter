@@ -79,6 +79,11 @@ stmt:
         /* Point, List and hash are to be added here */
         
     vdecl:
+        | vdecl_single      { $1 }
+    
+    /* only to be used to declare one variable */
+    /* Reusability in functions */
+    vdecl_single:
         | primitive_var_decl { $1 }
         | list_decl { $1 }
     
@@ -174,11 +179,11 @@ stmt:
         | args_list { List.rev $1 }
 
     args_list:
-          arg                     { [$1] }
-        | args_list COMMA arg { $3 :: $1 }
+          arg                       { [$1] }
+        | args_list COMMA arg       { $3 :: $1 }
 
     arg:
-        data_type ID    { ($1, $2) }
+        vdecl_single                { $1 }
 
     /* Function Call */
     fcall:
