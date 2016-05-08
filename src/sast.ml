@@ -11,6 +11,8 @@ type texpr =
     | Binop of texpr * Ast.ops * texpr * t
     | Id of string * t
     | Bool of bool * t
+    | Length  of texpr * t
+  
 
 type tstmt =
     Expr of texpr * t
@@ -22,7 +24,6 @@ type tstmt =
   | Remove of texpr * texpr
   | Access of texpr * texpr
   | Pop    of texpr
-  | Length  of texpr
   | Fcall  of texpr * texpr list
   | Print of texpr
   | LineVar of texpr * texpr
@@ -61,6 +62,7 @@ let rec string_of_texpr = function
   | Literal_Str(l, t) -> l ^ typeof t
   | Literal_List(l, t) ->  typeof t
   | Id(s, t) -> s ^ typeof t
+  | Length(v,_)  -> string_of_texpr v ^ ".length()"
   | Binop(e1, o, e2, t) ->
       string_of_texpr e1 ^ " " ^
       (match o with
@@ -86,7 +88,6 @@ let rec string_of_tstmt = function
   | Remove(v, e) -> string_of_texpr v ^ ".remove(" ^ ( string_of_texpr e ) ^ ")"
   | Access(v, e) -> string_of_texpr v ^ ".at(" ^ ( string_of_texpr e ) ^ ")"
   | Pop(v) -> string_of_texpr v ^ ".pop()"
-  | Length(v)  -> string_of_texpr v ^ ".length()"
   | Fcall(v, el)  -> string_of_texpr v ^ "("^ (String.concat "," (List.map string_of_texpr el)) ^")\n"
   | Print(e) -> "print " ^ string_of_texpr e ^ "\n"
   | LineVar(e1,e2)-> "line (" ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ")" ^ "\n"

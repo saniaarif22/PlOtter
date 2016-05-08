@@ -82,6 +82,7 @@ let check stmts =
         | Sast.Binop(_,_,_,t) -> t
         | Sast.Id(_,t) -> t
         | Sast.Bool(_,t) -> t
+        | Sast.Length(_,t) -> t
     in
     
     (* COnverting Ast to Sast *)
@@ -122,6 +123,12 @@ let check stmts =
                  with
                  | Not_found -> fail ("undeclared variable: " ^ v)
                 )
+            | Ast.Length(v) -> 
+                let sv = expr env v in
+                let tv = typeof sv in
+                if ( (tv = Sast.ListNum) || (tv = Sast.ListPoint) || (tv = Sast.ListString) || (tv = Sast.ListBool))
+                then Sast.Length(sv, Sast.Num)
+                else fail ("'length()' can be performed only on List variables.")
             | Ast.Binop(e1, op, e2) -> 
                 let se1 = expr env e1 in
                 let se2 = expr env e2 in
@@ -236,12 +243,6 @@ let check stmts =
                 if ( (tv = Sast.ListNum) || (tv = Sast.ListPoint) || (tv = Sast.ListString) || (tv = Sast.ListBool))
                 then Sast.Pop(sv)
                 else fail ("'pop()' can be performed only on List variables.")
-            | Ast.Length(v) -> 
-                let sv = expr env v in
-                let tv = typeof sv in
-                if ( (tv = Sast.ListNum) || (tv = Sast.ListPoint) || (tv = Sast.ListString) || (tv = Sast.ListBool))
-                then Sast.Length(sv)
-                else fail ("'length()' can be performed only on List variables.")
             | Ast.Fcall(v, el) -> 
                 let sv = expr env v in
                 let sel = List.map (fun s -> expr env s) el in
