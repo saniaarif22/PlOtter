@@ -4,8 +4,9 @@ open Ast
 module StringMap = Map.Make(String)
 
 type s_env = 
-        {      var_types :  string StringMap.t ref list;
+        {      var_types: string StringMap.t ref list;
                var_inds : int StringMap.t ref list;
+               f_list   : string list;
         }
     
 let check stmts =  
@@ -26,29 +27,35 @@ let check stmts =
         max 0 bindings
     in
     
+    let rec find_f_name lt s =  match lt with
+    | [] -> []
+    | hd :: tl ->  if hd=s then fail("Function name already exists")
+                   else find_f_name tl s
+    in
+    
     let type_to_str t = match t with 
-        | Sast.Num -> "num"
-        | Sast.String -> "string"
-        | Sast.Bool -> "bool" 
-        | Sast.Point -> "point" 
+        | Sast.Num          -> "num"
+        | Sast.String       -> "string"
+        | Sast.Bool         -> "bool" 
+        | Sast.Point        -> "point" 
         | Sast.ListBool     -> "listbool" 
         | Sast.ListNum      -> "listnum" 
         | Sast.ListString   -> "liststring" 
         | Sast.ListPoint    -> "listpoint" 
-        | Sast.List     -> "list" 
+        | Sast.List         -> "list" 
         
     in
     
     let str_to_type str_typ = function
-        | "num" -> Sast.Num
-        | "string" -> Sast.String
-        | "bool" -> Sast.Bool
-        | "point" -> Sast.Point
+        | "num"         -> Sast.Num
+        | "string"      -> Sast.String
+        | "bool"        -> Sast.Bool
+        | "point"       -> Sast.Point
         | "listnum"     -> Sast.ListNum
         | "liststring"  -> Sast.ListString
         | "listpoint"   -> Sast.ListPoint
         | "listbool"    -> Sast.ListBool
-        | "list"     -> Sast.List
+        | "list"        -> Sast.List
         
     in
     (* Setting Environment for Sast *)
@@ -65,8 +72,9 @@ let check stmts =
     
     (* build default symbol tables: *)
     let sast_env = 
-        {      var_types =  [ref StringMap.empty];
-               var_inds =  [ref StringMap.empty];
+        {      var_types    = [ref StringMap.empty];
+               var_inds     = [ref StringMap.empty];
+               f_list       = [];
         }
 
     in
@@ -82,6 +90,7 @@ let check stmts =
         | Sast.Binop(_,_,_,t) -> t
         | Sast.Id(_,t) -> t
         | Sast.Bool(_,t) -> t
+        | Sast.Length(_,t) -> t
     in
     
     (* COnverting Ast to Sast *)
@@ -122,6 +131,12 @@ let check stmts =
                  with
                  | Not_found -> fail ("undeclared variable: " ^ v)
                 )
+            | Ast.Length(v) -> 
+                let sv = expr env v in
+                let tv = typeof sv in
+                if ( (tv = Sast.ListNum) || (tv = Sast.ListPoint) || (tv = Sast.ListString) || (tv = Sast.ListBool))
+                then Sast.Length(sv, Sast.Num)
+                else fail ("'length()' can be performed only on List variables.")
             | Ast.Binop(e1, op, e2) -> 
                 let se1 = expr env e1 in
                 let se2 = expr env e2 in
@@ -236,12 +251,9 @@ let check stmts =
                 if ( (tv = Sast.ListNum) || (tv = Sast.ListPoint) || (tv = Sast.ListString) || (tv = Sast.ListBool))
                 then Sast.Pop(sv)
                 else fail ("'pop()' can be performed only on List variables.")
-            | Ast.Length(v) -> 
-                let sv = expr env v in
-                let tv = typeof sv in
-                if ( (tv = Sast.ListNum) || (tv = Sast.ListPoint) || (tv = Sast.ListString) || (tv = Sast.ListBool))
-                then Sast.Length(sv)
-                else fail ("'length()' can be performed only on List variables.")
+            | Ast.Fcall(v, el) -> 
+                let sel = List.map (fun s -> expr env s) el in
+                Sast.Fcall(v, sel)
             | Ast.Var_Decl(dt, id) -> 
                 (try 
                 ignore (StringMap.find id !(List.hd env.var_types)); 
@@ -301,6 +313,16 @@ let check stmts =
                 if( te1 = Sast.Num && te2 = Sast.Num && te3 = Sast.Num && te4 = Sast.Num )
                 then Sast.LineRaw(se1, se2, se3, se4)
                 else fail ("LineRaw has to be called with 4 nums")
+            | Ast.LinePX(e1, e2, e3) ->
+                let se1 = expr env e1 in
+                let se2 = expr env e2 in
+                let se3 = expr env e3 in
+                let te1 = typeof se1 in
+                let te2 = typeof se2 in
+                let te3 = typeof se3 in
+                if( te1 = Sast.Num && te2 = Sast.Num && te3 = Sast.Point )
+                then Sast.LinePX(se1, se2, se3)
+                else fail ("Line has to be called with 2 points")
             | Ast.For(s1, e1, s2, body) ->
                 let ss1 = stmt env s1 in
                 let se1 = expr env e1 in
@@ -308,9 +330,31 @@ let check stmts =
                 Sast.For(ss1, se1, ss2, List.map (fun s -> stmt env s) body)
             | Ast.While(e, body) ->
                 let se = expr env e in
-                Sast.While(se, List.map (fun s -> stmt env s) body)
+                let te = typeof se in 
+                if ( te = Sast.Num || te = Sast.Bool)
+                then Sast.While(se, List.map (fun s -> stmt env s) body)
+                else fail("The condition in while should give eiether num or bool. Not of type " ^type_to_str te)
+            | Ast.Ifelse(e, s1, s2) ->
+                let se = expr env e in
+                Sast.Ifelse(se, List.map (fun s -> stmt env s) s1, List.map (fun s -> stmt env s) s2)
             | Ast.Return(e) -> Sast.Return(expr env e)
-            
+            | Ast.Fdecl(f) -> 
+                    let fnEnv = {      
+                            var_types   =  [ref StringMap.empty];
+                            var_inds    =  [ref StringMap.empty];
+                            f_list      =  [];
+                    } in
+                    let fargs = List.map (fun s -> stmt fnEnv s) f.args in
+                    let fstms = List.map (fun s -> stmt fnEnv s) f.body in
+                    (*
+                    let c = find_f_name env.f_list f.fname in
+                    env.f_list = f.fname::env.f_list in
+                    *)
+                    Sast.Fdecl({
+                        fname = f.fname;
+                        args  = fargs;
+                        body  = fstms;
+                    })
         in
         List.map (fun s -> stmt env s) stmts_list
     in

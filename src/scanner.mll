@@ -22,7 +22,6 @@ rule token = parse
 | '[' { LBRACK }
 | ']' { RBRACK }
 | ',' { COMMA }
-| '#' { COMMENT }
 | '.' { OF }    
 | '=' { ASSIGN }
 | "and" { AND }
@@ -65,8 +64,14 @@ rule token = parse
 | ['"'][^'"']*['"'] as str { LIT_STR(str) }
 | ['A'-'Z' 'a'-'z']+['A'-'Z' 'a'-'z' '0'-'9']* as i { ID(i) }
 | eof { EOF }
-| _  {raise (Failure("illegal character"))}
+| '#'   { singleLineComment lexbuf }
+| "/*"  { multiLineComment lexbuf }
+| _     { raise (Failure("Illegal character ")) }
 
-and comment = parse
-  "*/" { token lexbuf }
-| _    { comment lexbuf }
+and singleLineComment = parse
+| '\n'  {token lexbuf}
+| _     {singleLineComment lexbuf}
+
+and multiLineComment = parse
+|"*/"   { token lexbuf }
+| _     { multiLineComment lexbuf }
