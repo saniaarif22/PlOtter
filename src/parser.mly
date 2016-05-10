@@ -69,8 +69,9 @@ stmt:
     
     literal_list:
         | LBRACK list_elements RBRACK { Literal_List($2) }
-        | LBRACK list_elements { (parse_error "Syntax error: Left paren is unmatched with right paren."); Literal_List($2) }
+        | LBRACK list_elements { (parse_error "Syntax error: Left [ is unmatched with right ]."); }
     
+
     list_elements:
         /* nothing */ { [] }
         | list_content  { List.rev $1 }
@@ -81,6 +82,13 @@ stmt:
     
     point:
         | LPAREN expr COMMA expr RPAREN     { Point($2, $4) }
+        | LPAREN expr COMMA expr { (parse_error "Syntax error: Left ( is unmatched with right )."); }
+        | LPAREN expr COMMA expr { (parse_error "Right ) is unmatched with left ( ."); }
+        | LPAREN expr expr RPAREN { (parse_error "Missing , ."); }
+        | LPAREN expr COMMA RPAREN { (parse_error "Missing y co-od of point ."); }
+        | LPAREN COMMA RPAREN { (parse_error "Missing x and y co-od of point ."); }
+        | LPAREN COMMA expr RPAREN { (parse_error "Missing x co-od of point ."); }
+    
         
     primitive:
         | BOOL      {"bool"}
@@ -107,9 +115,12 @@ stmt:
     
     primitive_var_decl:
         | primitive ID  { Var_Decl($1, $2) }
+        | primitive { (parse_error "Missing variable name"); }
 
     list_decl:
         | LIST primitive ID { List_Decl($2, $3) }
+        | LIST ID           { (parse_error "Missing list type"); }
+        | LIST primitive    { (parse_error "Missing list name"); }
         
         
     /*
@@ -136,21 +147,43 @@ stmt:
         | list_stmt EOL      { $1 }
         | assign_stmt EOL    { $1 }
         | PRINT expr EOL     { Print($2) }
+        | PRINT EOL          { (parse_error "Nothing to print!"); }
         | line EOL           { $1 }
         | fcall EOL          { $1 }
         | RETURN expr EOL    { Return($2) }
+        | RETURN EOL          { (parse_error "Nothing to return!"); }
         | vdecl EOL          { $1 }
-        | loop_stmt EOL           { $1 }
+        | loop_stmt EOL      { $1 }
         | EOL                { Noexpr }
 
     cond_stmt:
         | IF expr COLON EOL other_stmt_list END            { Ifelse($2, $5, []) }
+        | IF expr EOL other_stmt_list END            { (parse_error "Missing colon :"); }
+        | IF expr COLON EOL other_stmt_list          { (parse_error "Missing end "); }
+        | IF COLON EOL other_stmt_list END           { (parse_error "Missing if condition "); }
         | IF expr COLON EOL other_stmt_list ELSE COLON EOL other_stmt_list END  { Ifelse($2, $5, $9) }
+        | IF expr EOL other_stmt_list ELSE COLON EOL other_stmt_list END  { (parse_error "Missing colon : after if "); }
+        | IF expr COLON EOL other_stmt_list ELSE EOL other_stmt_list END  { (parse_error "Missing colon : after else "); }
+        | IF expr EOL other_stmt_list ELSE COLON EOL other_stmt_list      { (parse_error "Missing end "); }
+        | IF EOL other_stmt_list ELSE COLON EOL other_stmt_list END       { (parse_error "Missing if condition"); }
 
     list_stmt:
         | ID OF APPEND LPAREN expr RPAREN       { Append( Id($1), $5)}
+        | ID APPEND LPAREN expr RPAREN          { (parse_error "Missing . ");}
+        | ID OF LPAREN expr RPAREN              { (parse_error "Missing append/remove/at ");}
+        | ID OF APPEND expr RPAREN              { (parse_error "Missing left paren ");}
+        | ID OF APPEND LPAREN  RPAREN           { (parse_error "Missing expression to append ");}
+        | ID OF APPEND LPAREN expr              { (parse_error "Missing right paren ");}
         | ID OF POP LPAREN RPAREN               { Pop( Id($1) ) }
+        | ID POP LPAREN RPAREN                  { (parse_error "Missing . "); }
+        | ID OF LPAREN RPAREN                   { (parse_error "Missing pop/length/at "); }
+        | ID OF POP RPAREN                      { (parse_error "Missing left paren "); }
+        | ID OF POP LPAREN                      { (parse_error "Missing right paren "); }
         | ID OF REMOVE LPAREN expr RPAREN       { Remove( Id($1), $5 ) }
+        | ID OF REMOVE LPAREN expr              { (parse_error "Missing right paren "); }
+        | ID OF REMOVE  expr RPAREN             { (parse_error "Missing left paren "); }
+        | ID REMOVE LPAREN expr RPAREN          { (parse_error "Missing . "); }
+        | ID OF REMOVE LPAREN RPAREN            { (parse_error "Missing expression to remove "); }
         
     list_assign:
         | ID ASSIGN literal_list {Assign(Id($1), $3) }
@@ -221,12 +254,19 @@ stmt:
   | LPAREN expr RPAREN  { $2 }
    
    log_expr:  
-  | expr EQUAL  expr { Binop($1, Equal, $3) }
-  | expr NEQ  expr { Binop($1, Neq,   $3) }
-  | expr LESS  expr { Binop($1, Less,  $3) }
-  | expr LEQ   expr { Binop($1, Leq,   $3) }
-  | expr GREATER  expr { Binop($1, Greater,  $3) }
-  | expr GEQ  expr { Binop($1, Geq,   $3) }
+  | expr EQUAL  expr       { Binop($1, Equal, $3) }
+  | expr NEQ  expr         { Binop($1, Neq,   $3) }
+  | expr LESS  expr        { Binop($1, Less,  $3) }
+  | expr LEQ   expr        { Binop($1, Leq,   $3) }
+  | expr GREATER  expr     { Binop($1, Greater,  $3) }
+  | expr GEQ  expr         { Binop($1, Geq,   $3) }
+  | expr expr              { (parse_error "Missing Equal/not equal/ lesser/ greater/ lesser eq/ greater eq "); }
+  | expr EQUAL             { (parse_error "Missing second  expression "); }
+  | expr NEQ               { (parse_error "Missing second  expression "); }
+  | expr LESS              { (parse_error "Missing second  expression "); }
+  | expr LEQ               { (parse_error "Missing second  expression "); }
+  | expr GREATER           { (parse_error "Missing second  expression "); }
+  | expr GEQ               { (parse_error "Missing second  expression "); }
   | log_expr AND log_expr { Binop($1, And, $3) }
   | log_expr OR log_expr { Binop($1, Or, $3) }
   
@@ -237,13 +277,28 @@ stmt:
   | arith_expr TIMES  arith_expr { Binop($1, Mul,  $3) }
   | arith_expr DIVIDE arith_expr { Binop($1, Div,   $3) }
   | arith_expr MOD arith_expr    { Binop($1, Mod,   $3) }
+  | arith_expr arith_expr        { (parse_error "Missing plus/minus/times/divide/mod "); }
+  | arith_expr PLUS              { (parse_error "Missing second arithmetic expression "); }
+  | arith_expr MINUS             { (parse_error "Missing second arithmetic expression "); }
+  | arith_expr TIMES             { (parse_error "Missing second arithmetic expression "); }
+  | arith_expr DIVIDE            { (parse_error "Missing second arithmetic expression "); }
+  | arith_expr MOD               { (parse_error "Missing second arithmetic expression "); }
   | list_exprs                { $1 }
   | atom                { $1 }
   
   list_exprs:
   | ID OF LENGTH LPAREN  RPAREN           { Length( Id($1) ) }
+  | ID LENGTH LPAREN  RPAREN              { (parse_error "Missing . "); }
+  | ID OF LENGTH  RPAREN                  { (parse_error "Missing left paren "); }
+  | ID OF LENGTH LPAREN                   { (parse_error "Missing right paren "); }
   | ID OF AT LPAREN expr RPAREN           { Access( Id($1), $5 ) }
-  | ID LBRACK expr  RBRACK                { Access( Id($1), $3 ) }
+  | ID  AT LPAREN expr RPAREN             { (parse_error "Missing of "); }
+  | ID OF AT expr RPAREN                  { (parse_error "Missing left paren "); }
+  | ID OF AT LPAREN expr                  { (parse_error "Missing right paren "); }
+  | ID LBRACK expr RBRACK                 { Access( Id($1), $3 ) }
+  | ID LBRACK RBRACK                      { (parse_error "Missing expr "); }
+  | ID LBRACK expr                        { (parse_error "Missing right brack "); }
+  
  
   
   atom:
