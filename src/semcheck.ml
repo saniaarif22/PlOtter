@@ -191,7 +191,7 @@ let check stmts =
                             | _ -> fail ("Incorrect type " ^ (type_to_str e2_data) ^ " with Num"))
                     | _ -> fail ("Operation on incompatible types")
                     )
-                | Equal | Neq ->
+                | Equal | Neq  ->
                     (match e1_data with 
                     | Num ->
                         (match e2_data with
@@ -210,6 +210,11 @@ let check stmts =
                         )
                     (*| Void  -> fail ("Cannot perform binop on void") *)
                     )
+
+                | And | Or  ->
+                    if ( (e1_data=Num || e1_data=Bool ) && (e2_data=Num || e2_data=Bool) )
+                    then Sast.Binop(se1, op, se2, Sast.Bool)
+                    else fail("Incorrect type with 'and' and 'or'")
 
                 | Less | Leq | Greater | Geq ->
                     (match e1_data with 
