@@ -1,4 +1,18 @@
-%{ open Ast %}
+%{ open Ast 
+   open Lexing
+   open Parsing
+  
+  let num_errors = ref 0
+
+  let parse_error msg = (* called by parser function on error *)
+  let start = symbol_start_pos() in
+  let final = symbol_end_pos() in
+  Printf.fprintf stdout "Line: %d Chars: %d..%d: %s\n"
+     (start.pos_lnum) (start.pos_cnum - start.pos_bol) (final.pos_cnum - final.pos_bol) msg;
+        incr num_errors;
+  flush stdout;
+  exit 0
+  %}
 
 %token EOL LPAREN RPAREN LBRACK RBRACK
 %token PLUS MINUS TIMES DIVIDE MOD ASSIGN
@@ -54,6 +68,7 @@ stmt:
         
     literal_list:
         | LBRACK list_elements RBRACK { Literal_List($2) }
+        | LBRACK list_elements { (parse_error "Syntax error: Left paren is unmatched with right paren."); Literal_List($2) }
     
     list_elements:
         /* nothing */ { [] }
