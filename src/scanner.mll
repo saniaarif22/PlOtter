@@ -1,4 +1,8 @@
-{ open Parser }
+{ 
+	open Err
+	open Parser
+	open Lexing
+}
 
 rule token = parse
   [' ' '\t' '\r'] { token lexbuf } (*whitespace*)
@@ -66,7 +70,7 @@ rule token = parse
 | eof { EOF }
 | '#'   { singleLineComment lexbuf }
 | "/*"  { multiLineComment lexbuf }
-| _     { raise (Failure("Illegal character ")) }
+| _     { raise (Err.ScanError("Fuck you"))	}
 
 and singleLineComment = parse
 | '\n'  {token lexbuf}
