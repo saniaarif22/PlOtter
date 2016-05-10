@@ -187,6 +187,8 @@ stmt:
         
     list_assign:
         | ID ASSIGN literal_list {Assign(Id($1), $3) }
+        | ID literal_list        {(parse_error "Missing assignment operator "); }
+        | ID ASSIGN              {(parse_error "Missing element(s) "); }
  
     assign_stmt:
         | ID ASSIGN expr        { Assign(Id($1), $3) }
@@ -195,13 +197,43 @@ stmt:
     
     line:
         | LINE LPAREN ID COMMA ID RPAREN  { LineVar(Id($3), Id($5) )}
+        | LINE  ID COMMA ID RPAREN  { (parse_error "Missing left paren ");}
+        | LINE LPAREN ID COMMA ID   { (parse_error "Missing right paren ");}
+        | LINE LPAREN ID ID RPAREN  { (parse_error "Missing , ");}
         | LINE LPAREN LPAREN expr COMMA expr RPAREN COMMA LPAREN expr COMMA expr RPAREN RPAREN { LineRaw($4, $6, $10, $12) }
+        | LINE LPAREN expr COMMA expr RPAREN COMMA LPAREN expr COMMA expr RPAREN RPAREN { (parse_error "Missing left paren ");}
+        | LINE LPAREN LPAREN  expr COMMA expr RPAREN COMMA expr COMMA expr RPAREN RPAREN { (parse_error "Missing left paren ");}
+        | LINE LPAREN LPAREN expr COMMA expr  COMMA LPAREN expr COMMA expr RPAREN RPAREN { (parse_error "Missing right paren ");}
+        | LINE LPAREN LPAREN expr COMMA expr RPAREN COMMA LPAREN expr COMMA expr RPAREN  { (parse_error "Missing right paren ");}
+        | LINE LPAREN LPAREN expr  expr RPAREN COMMA LPAREN expr COMMA expr RPAREN RPAREN { (parse_error "Missing , ");}
+        | LINE LPAREN LPAREN expr COMMA expr RPAREN  LPAREN expr COMMA expr RPAREN RPAREN { (parse_error "Missing , ");}
+        | LINE LPAREN LPAREN expr COMMA expr RPAREN COMMA LPAREN expr  expr RPAREN RPAREN { (parse_error "Missing , ");}
         | LINE LPAREN LPAREN expr COMMA expr RPAREN COMMA ID RPAREN { LinePX($4, $6, Id($9)) }
+        | LINE LPAREN expr COMMA expr RPAREN COMMA ID RPAREN { (parse_error "Missing left paren ");}
+        | LINE LPAREN LPAREN expr COMMA expr RPAREN COMMA ID { (parse_error "Missing right paren ");}
+        | LINE LPAREN LPAREN expr COMMA expr COMMA ID RPAREN { (parse_error "Missing right paren ");}
+        | LINE LPAREN LPAREN expr expr RPAREN COMMA ID RPAREN { (parse_error "Missing , ");}
+        | LINE LPAREN LPAREN expr COMMA expr RPAREN ID RPAREN { (parse_error "Missing , ");}
         | LINE LPAREN ID COMMA LPAREN expr COMMA expr RPAREN RPAREN { LinePX($6, $8, Id($3)) }
+        | LINE  ID COMMA LPAREN expr COMMA expr RPAREN RPAREN { (parse_error "Missing left paren ");}
+        | LINE LPAREN ID COMMA  expr COMMA expr RPAREN RPAREN { (parse_error "Missing left paren ");}
+        | LINE LPAREN ID  LPAREN expr COMMA expr RPAREN RPAREN { (parse_error "Missing , ");}
+        | LINE LPAREN ID COMMA LPAREN expr  expr RPAREN RPAREN { (parse_error "Missing , ");}
+        | LINE LPAREN ID COMMA LPAREN expr COMMA expr  RPAREN { (parse_error "Missing right paren ");}
 
     loop_stmt:
         | FOR assign_stmt SEMI expr SEMI assign_stmt COLON EOL other_stmt_list END { For($2, $4, $6, List.rev $9) }
+        | FOR assign_stmt  expr SEMI assign_stmt COLON EOL other_stmt_list END { (parse_error "Missing ; ");}
+        | FOR assign_stmt SEMI expr  assign_stmt COLON EOL other_stmt_list END { (parse_error "Missing ; ");}
+        | FOR assign_stmt SEMI expr SEMI assign_stmt  EOL other_stmt_list END { (parse_error "Missing : ");}
+        | FOR assign_stmt SEMI expr SEMI assign_stmt COLON EOL other_stmt_list { (parse_error "Missing end ");}
+        | FOR  SEMI expr SEMI assign_stmt COLON EOL other_stmt_list END { (parse_error "Missing initialization statement ");}
+        | FOR assign_stmt SEMI  SEMI assign_stmt COLON EOL other_stmt_list END { (parse_error "Missing condition statement ");}
+        | FOR assign_stmt SEMI expr SEMI  COLON EOL other_stmt_list END { (parse_error "Missing increment/decrement statement ");}
         | WHILE expr COLON EOL other_stmt_list END {While($2, List.rev $5)}
+        | WHILE expr COLON EOL other_stmt_list END { (parse_error "Missing : ");}
+        | WHILE expr COLON EOL other_stmt_list END { (parse_error "Missing end ");}
+        | WHILE expr COLON EOL other_stmt_list END { (parse_error "Missing expression in while ");}
         
     other_stmt_list:
         { [] }
@@ -218,10 +250,14 @@ stmt:
    /* No locals. as variables can be declared at any point */
 
     fdecl:
-        FN ID LPAREN args_opt RPAREN COLON EOL stmt_list END EOL
-        { Fdecl({ fname = $2;
+        | FN ID LPAREN args_opt RPAREN COLON EOL stmt_list END EOL
+          { Fdecl({ fname = $2;
             args = List.rev $4;
             body = List.rev $8 }) }
+        | FN ID LPAREN args_opt RPAREN COLON EOL stmt_list END EOL { (parse_error "Missing colon : "); }
+        | FN ID args_opt RPAREN COLON EOL stmt_list END EOL        { (parse_error "Missing left paren "); }
+        | FN ID LPAREN args_opt COLON EOL stmt_list END EOL        { (parse_error "Missing right paren "); }
+        | FN LPAREN args_opt RPAREN EOL stmt_list END EOL          { (parse_error "Missing function name : "); }
 
     args_opt:
          { [] }
@@ -230,6 +266,8 @@ stmt:
     args_list:
           arg                       { [$1] }
         | args_list COMMA arg       { $3 :: $1 }
+        | args_list arg             { (parse_error "Missing , "); }
+        | args_list COMMA           { (parse_error "Missing arg "); }
 
     arg:
         vdecl_single                { $1 }
@@ -242,6 +280,8 @@ stmt:
         {[]}
         | expr                  { [$1] }
         | fparam COMMA expr     { $3 :: $1 }
+        | fparam  expr          { (parse_error "Missing , "); }
+        | fparam COMMA          { (parse_error "Missing expr "); }
         
     
 /* =============================================
@@ -252,6 +292,8 @@ stmt:
   | arith_expr          { $1 }
   | log_expr            { $1 }
   | LPAREN expr RPAREN  { $2 }
+  | LPAREN  RPAREN      { (parse_error "Missing expression "); }
+  | LPAREN expr         { (parse_error "Missing right paren "); }
    
    log_expr:  
   | expr EQUAL  expr       { Binop($1, Equal, $3) }
@@ -267,11 +309,17 @@ stmt:
   | expr LEQ               { (parse_error "Missing second  expression "); }
   | expr GREATER           { (parse_error "Missing second  expression "); }
   | expr GEQ               { (parse_error "Missing second  expression "); }
-  | log_expr AND log_expr { Binop($1, And, $3) }
-  | log_expr OR log_expr { Binop($1, Or, $3) }
+  | log_expr AND log_expr  { Binop($1, And, $3) }
+  | log_expr OR log_expr   { Binop($1, Or, $3) }
+  | log_expr log_expr      { (parse_error "Missing and/ or "); }
+  | log_expr OR            { (parse_error "Missing second  expression "); }
+  | log_expr AND           { (parse_error "Missing second  expression "); }
   
   
   arith_expr : 
+  | LPAREN arith_expr RPAREN     { $2 }
+  | LPAREN arith_expr            { (parse_error "Missing right paren "); }
+  | LPAREN RPAREN                { (parse_error "Missing expr "); }
   | arith_expr PLUS   arith_expr { Binop($1, Add,   $3) }
   | arith_expr MINUS  arith_expr { Binop($1, Sub,   $3) }
   | arith_expr TIMES  arith_expr { Binop($1, Mul,  $3) }
