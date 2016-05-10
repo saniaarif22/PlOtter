@@ -86,11 +86,13 @@ let check stmts =
     let typeof elem = match elem with
         | Sast.Literal_Num(_,t) -> t
         | Sast.Literal_Str(_,t) -> t
+        | Sast.Point(_,_,t) -> t
         | Sast.Literal_List(_,t) -> t
         | Sast.Binop(_,_,_,t) -> t
         | Sast.Id(_,t) -> t
         | Sast.Bool(_,t) -> t
         | Sast.Length(_,t) -> t
+        | Sast.Access(_,_,_,t) -> t
     in
     
     (* COnverting Ast to Sast *)
@@ -100,6 +102,14 @@ let check stmts =
         let rec expr env = function
             | Ast.Literal_Num(v) -> Sast.Literal_Num(v, Sast.Num)
             | Ast.Literal_Str(v) -> Sast.Literal_Str(v, Sast.String)
+            | Ast.Point(e1, e2) -> 
+                let se1 = expr env e1 in 
+                let se2 = expr env e2 in 
+                let te1 = typeof se1 in
+                let te2 = typeof se2 in
+                if( te1=te2 && te1=Sast.Num)
+                then Sast.Point(se1, se2, Sast.Point)
+                else fail("Point's value should only be of type num.")
             | Ast.Literal_List(v) -> 
                     let tv = List.map (fun s -> expr env s) v in
                     (match tv with 
@@ -139,22 +149,26 @@ let check stmts =
                 if ( te=Sast.Num )
                 then (
                     if (tv = Sast.ListNum)
-                    then Sast.Access(sv, se, Sast.Num)
+                    then Sast.Access(sv, se, Sast.ListNum, Sast.Num)
                     else (
                         if (tv= Sast.ListString)
-                        then Sast.Access(sv, se, Sast.String)
+                        then Sast.Access(sv, se, Sast.ListString, Sast.String)
                         else (
                             if (tv= Sast.ListBool)
-                            then Sast.Access(sv, se, Sast.Bool)
+                            then Sast.Access(sv, se, Sast.ListBool, Sast.Bool)
                             else (
                                 if (tv= Sast.ListPoint)
-                                then Sast.Access(sv, se, Sast.Point)
-                                else fail("The 'index' in list_elem.at(index)  should be of num type only." ^ (type_to_str te))
+                                then Sast.Access(sv, se, Sast.ListPoint, Sast.Point)
+                                else (if (tv= Sast.Point)
+                                    then Sast.Access(sv, se, Sast.Point, Sast.Num)
+                                    else ( fail("'access' operations can be performed only on List variables. Here its applied on "^ type_to_str tv)
+                                        )
+                                    )
                                 )
                             )
                         )
                     )
-                else fail ("'access' operations can be performed only on List variables.")
+                else fail ("The 'index' in list_elem.at(index)  should be of num type only." ^ (type_to_str tv))
             | Ast.Length(v) -> 
                 let sv = expr env v in
                 let tv = typeof sv in
@@ -221,16 +235,14 @@ let check stmts =
                 let se = expr env e in
                 let tp = typeof se in
                 Sast.Expr(se, tp)
-            | Ast.Passign(v,e1,e2) -> 
+            | Ast.Passign(v,e1,e) -> 
                 let sv = expr env v in
                 let se1 = expr env e1 in
-                let se2 = expr env e2 in
                 let tv = typeof sv in
                 let te1 = typeof se1 in
-                let te2 = typeof se2 in
-                if ( tv = Sast.Point && te2 = Sast.Num && te1 = Sast.Num )
-                    then Sast.Passign(sv, se1, se2)
-                else fail ("Invalid type assign. cannot assign " ^ (type_to_str te1) ^ "," ^ (type_to_str te2)  ^ " to type " ^ (type_to_str tv))
+                if ( tv = Sast.Point && te1 = tv )
+                    then Sast.Passign(sv, se1)
+                else fail ("Invalid type assign. cannot assign " ^ (type_to_str te1) ^ " to type " ^ (type_to_str tv))
             | Ast.Assign(v,e) -> 
                 let sv = expr env v in
                 let se = expr env e in

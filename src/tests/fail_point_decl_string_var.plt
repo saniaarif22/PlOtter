@@ -1,3 +1,4 @@
 string a
 a = "5"
-point b = (a,a)
+point b
+b = (a,a)

@@ -13,6 +13,7 @@ type bool =
 type expr =
     Literal_Num of float
   | Literal_Str of string
+  | Point of expr * expr
   | Literal_List of expr list               (* Eg [ expr, expr, .. ] *)
   | Binop of expr * ops * expr              (* Binary Ops *)
   | Id of string                            (* identifiers *)
@@ -26,7 +27,7 @@ type stmt = (* Statements *)
     Expr of expr
   | Var_Decl of string * string             (* (type, id) *)
   | List_Decl of string * string
-  | Passign of expr * expr * expr           (* (type, p1, p2) *)
+  | Passign of expr * expr * stmt                  (* (type, p1, p2) *)
   | Assign of expr * expr                   (* a = 2 *)
   | Append of expr * expr                   (* a.append(7) *)
   | Pop of expr                             (* a.pop() *)
@@ -62,6 +63,7 @@ type program = {
 let rec string_of_expr = function
     Literal_Num(l) -> string_of_float l ^ "0"
   | Literal_Str(l) -> l
+  | Point(e1, e2) -> "(" ^ string_of_expr e1 ^ "," ^ string_of_expr e2 ^ ")"
   | Literal_List(l) -> "[" ^ (String.concat "," (List.map string_of_expr l)) ^ "]"
   | Id(s) -> s
   | Binop(e1, o, e2) ->
@@ -86,8 +88,8 @@ let rec string_of_stmt = function
     Expr(expr) -> string_of_expr expr ^ ""
   | Var_Decl(tp, id) -> tp ^ " " ^ id ^ "\n"
   | List_Decl(tp, id) -> "list " ^ tp ^ " " ^ id ^ "\n"
-  | Passign(v, e1, e2) -> string_of_expr v ^ " = (" ^ ( string_of_expr e1 ) ^ "," ^ (string_of_expr e2) ^ ")\n"
-  | Assign(v, e) -> string_of_expr v ^ " = " ^ ( string_of_expr e )
+  | Passign(v, e1, e) -> "pass " ^ string_of_expr v ^ " = " ^ ( string_of_expr e1 ) ^ "\n"
+  | Assign(v, e) -> "ass " ^ string_of_expr v ^ " = " ^ ( string_of_expr e )
   | Append(v, e) -> string_of_expr v ^ ".append(" ^ ( string_of_expr e ) ^ ")\n"
   | Pop(v) -> string_of_expr v ^ ".pop()\n"
   | Remove(v, e) -> string_of_expr v ^ ".remove(" ^ ( string_of_expr e ) ^ ")\n"

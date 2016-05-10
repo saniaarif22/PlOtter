@@ -64,8 +64,9 @@ stmt:
     literal:
         | LIT_NUM       { Literal_Num($1) }
         | LIT_STR       { Literal_Str($1) }
+        | point         { $1 }
         | literal_list  { $1 } 
-        
+    
     literal_list:
         | LBRACK list_elements RBRACK { Literal_List($2) }
         | LBRACK list_elements { (parse_error "Syntax error: Left paren is unmatched with right paren."); Literal_List($2) }
@@ -78,7 +79,9 @@ stmt:
         expr                    { [$1] }
         | list_content COMMA expr { $3 :: $1 } 
     
-
+    point:
+        | LPAREN expr COMMA expr RPAREN     { Point($2, $4) }
+        
     primitive:
         | BOOL      {"bool"}
         | NUM       {"num"}
@@ -153,7 +156,6 @@ stmt:
         | ID ASSIGN literal_list {Assign(Id($1), $3) }
  
     assign_stmt:
-        | ID ASSIGN LPAREN expr COMMA expr RPAREN { Passign(Id($1),$4,$6)}
         | ID ASSIGN expr        { Assign(Id($1), $3) }
         | list_assign           { $1 }
     
@@ -185,7 +187,7 @@ stmt:
     fdecl:
         FN ID LPAREN args_opt RPAREN COLON EOL stmt_list END EOL
         { Fdecl({ fname = $2;
-            args = $4;
+            args = List.rev $4;
             body = List.rev $8 }) }
 
     args_opt:
