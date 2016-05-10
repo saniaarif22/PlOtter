@@ -133,9 +133,7 @@ stmt:
         | ID OF APPEND LPAREN expr RPAREN       { Append( Id($1), $5)}
         | ID OF POP LPAREN RPAREN               { Pop( Id($1) ) }
         | ID OF REMOVE LPAREN expr RPAREN       { Remove( Id($1), $5 ) }
-        | ID OF AT LPAREN expr RPAREN           { Access( Id($1), $5 ) }
-        | ID LBRACK expr  RBRACK                { Access( Id($1), $3 ) }
- 
+        
     list_assign:
         | ID ASSIGN literal_list {Assign(Id($1), $3) }
  
@@ -222,11 +220,15 @@ stmt:
   | arith_expr TIMES  arith_expr { Binop($1, Mul,  $3) }
   | arith_expr DIVIDE arith_expr { Binop($1, Div,   $3) }
   | arith_expr MOD arith_expr    { Binop($1, Mod,   $3) }
-  | list_len_expr                { $1 }
+  | list_exprs                { $1 }
   | atom                { $1 }
   
-  list_len_expr:
+  list_exprs:
   | ID OF LENGTH LPAREN  RPAREN           { Length( Id($1) ) }
+  | ID OF AT LPAREN expr RPAREN           { Access( Id($1), $5 ) }
+  | ID LBRACK expr  RBRACK                { Access( Id($1), $3 ) }
+ 
+  
   atom:
   | literal          { $1 }
   | TRUE             { Bool(True) }

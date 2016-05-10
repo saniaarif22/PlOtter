@@ -131,6 +131,30 @@ let check stmts =
                  with
                  | Not_found -> fail ("undeclared variable: " ^ v)
                 )
+            | Ast.Access(v, e) -> 
+                let sv = expr env v in
+                let se = expr env e in
+                let tv = typeof sv in
+                let te = typeof se in
+                if ( te=Sast.Num )
+                then (
+                    if (tv = Sast.ListNum)
+                    then Sast.Access(sv, se, Sast.Num)
+                    else (
+                        if (tv= Sast.ListString)
+                        then Sast.Access(sv, se, Sast.String)
+                        else (
+                            if (tv= Sast.ListBool)
+                            then Sast.Access(sv, se, Sast.Bool)
+                            else (
+                                if (tv= Sast.ListPoint)
+                                then Sast.Access(sv, se, Sast.Point)
+                                else fail("The 'index' in list_elem.at(index)  should be of num type only." ^ (type_to_str te))
+                                )
+                            )
+                        )
+                    )
+                else fail ("'access' operations can be performed only on List variables.")
             | Ast.Length(v) -> 
                 let sv = expr env v in
                 let tv = typeof sv in
@@ -234,17 +258,6 @@ let check stmts =
                     then Sast.Remove(sv, se)
                     else fail("The 'index' in *.pop(index) should be of num type only. It cannot be of type " ^ (type_to_str te))
                 else fail ("'access' operations can be performed only on List variables.")
-            | Ast.Access(v, e) -> 
-                let sv = expr env v in
-                let se = expr env e in
-                let tv = typeof sv in
-                let te = typeof se in
-                if ( (tv = Sast.ListNum) || (tv = Sast.ListPoint) || (tv = Sast.ListString) || (tv = Sast.ListBool))
-                then
-                    if ( te=Sast.Num )
-                    then Sast.Access(sv, se)
-                    else fail("The 'index' in list_elem.at(index)  should be of num type only." ^ (type_to_str te))
-                else fail ("'access' operations can be performed only on List variables.")
             | Ast.Pop(v) -> 
                 let sv = expr env v in
                 let tv = typeof sv in
@@ -253,6 +266,7 @@ let check stmts =
                 else fail ("'pop()' can be performed only on List variables.")
             | Ast.Fcall(v, el) -> 
                 let sel = List.map (fun s -> expr env s) el in
+                (* Check if function is present *)
                 Sast.Fcall(v, sel)
             | Ast.Var_Decl(dt, id) -> 
                 (try 
@@ -346,10 +360,10 @@ let check stmts =
                     } in
                     let fargs = List.map (fun s -> stmt fnEnv s) f.args in
                     let fstms = List.map (fun s -> stmt fnEnv s) f.body in
-                    (*
-                    let c = find_f_name env.f_list f.fname in
-                    env.f_list = f.fname::env.f_list in
-                    *)
+                    
+                    let c = find_f_name env.f_list f.fname;
+                    env.f_list = f.fname::env.f_list;
+                    in
                     Sast.Fdecl({
                         fname = f.fname;
                         args  = fargs;

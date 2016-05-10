@@ -12,6 +12,7 @@ type texpr =
     | Id of string * t
     | Bool of bool * t
     | Length  of texpr * t
+    | Access of texpr * texpr * t
   
 
 type tstmt =
@@ -22,7 +23,6 @@ type tstmt =
   | Assign of texpr * texpr
   | Append of texpr * texpr
   | Remove of texpr * texpr
-  | Access of texpr * texpr
   | Pop    of texpr
   | Fcall  of string * texpr list
   | Print of texpr
@@ -76,6 +76,8 @@ let rec string_of_texpr = function
       | Greater -> ">" | Geq -> ">="
       ) ^ " " ^ string_of_texpr e2 ^ typeof t
   | Bool(x, t) -> if x = True then "true" else "false" ^ typeof t
+  | Access(v, e, t) -> string_of_texpr v ^ ".at(" ^ ( string_of_texpr e ) ^ ")" ^ " //of type " ^ typeof t
+  
 
 
 let rec string_of_tstmt = function
@@ -87,7 +89,6 @@ let rec string_of_tstmt = function
   | Assign(v, e) -> string_of_texpr v ^ " = " ^ ( string_of_texpr e )
   | Append(v, e) -> string_of_texpr v ^ ".append(" ^ ( string_of_texpr e ) ^ ")"
   | Remove(v, e) -> string_of_texpr v ^ ".remove(" ^ ( string_of_texpr e ) ^ ")"
-  | Access(v, e) -> string_of_texpr v ^ ".at(" ^ ( string_of_texpr e ) ^ ")"
   | Pop(v) -> string_of_texpr v ^ ".pop()"
   | Fcall(v, el)  ->  v ^ "("^ (String.concat "," (List.map string_of_texpr el)) ^")\n"
   | Print(e) -> "print " ^ string_of_texpr e ^ "\n"

@@ -13,11 +13,13 @@ type bool =
 type expr =
     Literal_Num of float
   | Literal_Str of string
-  | Literal_List of expr list           (* Eg [ expr, expr, .. ] *)
-  | Binop of expr * ops * expr          (* Binary Ops *)
-  | Id of string                        (* identifiers *)
-  | Bool of bool                        (* True *)
+  | Literal_List of expr list               (* Eg [ expr, expr, .. ] *)
+  | Binop of expr * ops * expr              (* Binary Ops *)
+  | Id of string                            (* identifiers *)
+  | Bool of bool                            (* True *)
   | Length of expr                          (* a.length() *)
+  | Access of expr * expr                   (* a.at(3), a[3] *)
+  
 
 
 type stmt = (* Statements *)
@@ -29,8 +31,7 @@ type stmt = (* Statements *)
   | Append of expr * expr                   (* a.append(7) *)
   | Pop of expr                             (* a.pop() *)
   | Remove of expr * expr                   (* a.remove(3) *)
-  | Access of expr * expr                   (* a.at(3), a[3] *)
-  | Fcall  of string * expr list              (* a.() *)
+  | Fcall  of string * expr list            (* a.() *)
   | Print of expr                           (* print 5 *)
   | LineVar of expr * expr                  (* line(p,q) *)
   | LineRaw of expr * expr * expr * expr    (* line((3,4), (7,9)) *)
@@ -76,6 +77,8 @@ let rec string_of_expr = function
       ) ^ " " ^ string_of_expr e2
   | Bool(x) -> if x = True then "true" else "false"
   | Length(v) -> string_of_expr v ^ ".length()\n"
+  | Access(v, e) -> string_of_expr v ^ ".at(" ^ ( string_of_expr e ) ^ ")\n"
+  
   
 
       
@@ -88,7 +91,6 @@ let rec string_of_stmt = function
   | Append(v, e) -> string_of_expr v ^ ".append(" ^ ( string_of_expr e ) ^ ")\n"
   | Pop(v) -> string_of_expr v ^ ".pop()\n"
   | Remove(v, e) -> string_of_expr v ^ ".remove(" ^ ( string_of_expr e ) ^ ")\n"
-  | Access(v, e) -> string_of_expr v ^ ".at(" ^ ( string_of_expr e ) ^ ")\n"
   | Fcall(v, el) ->  v ^ "("^ (String.concat "," (List.map string_of_expr el)) ^")\n"
   | Print(e) -> "print " ^ string_of_expr e ^ "\n"
   | LineVar(e1,e2)-> "line (" ^ string_of_expr e1 ^ "," ^ string_of_expr e2 ^ ")" ^ "\n"
