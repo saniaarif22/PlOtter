@@ -71,12 +71,9 @@ fn barGraph(list num a):
     padVt = 10
     
     #bar graph settings 10% of the graph
-    gap         = maxLength - padHz 
-    gap         = 0.1 * gap / maxDataLn
-    barWidth    = maxLength - padHz
-    barWidth    = 0.9 * barWidth / maxDataLn
-    scaleFactor = maxHeight - padVt
-    scaleFactor = scaleFactor / maxDataHt
+    gap         = 0.1 * (maxLength - padHz) / maxDataLn
+    barWidth    = 0.9 * (maxLength - padHz) / maxDataLn
+    scaleFactor = (maxHeight - padVt) / maxDataHt
     
     #Draw the bars, scaled and with the gap
     num x
@@ -91,4 +88,3 @@ fn barGraph(list num a):
     
     
 end
-
