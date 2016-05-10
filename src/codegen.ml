@@ -11,7 +11,7 @@ let convert prog =
       | Ast.Literal_List(l)-> "{" ^ (String.concat "," (List.map  create_expr l) ) ^ "}"
       | Ast.Id(s) -> s
       | Ast.Binop(e1, o, e2) -> 
-      			create_expr e1 ^ " " ^
+      			"(" ^ create_expr e1 ^ " " ^
       			(match o with
 		Add -> "+" | Sub -> "-" | Mul -> "*" | Div -> "/"
       		| Equal -> "==" | Neq -> "!="
@@ -20,9 +20,9 @@ let convert prog =
       		| Square -> "**"
       		| Less -> "<" | Leq -> "<=" 
       		| Greater -> ">" | Geq -> ">="
-      		) ^ " " ^ create_expr e2
+      		) ^ " " ^ create_expr e2 ^ ")"
       | Ast.Bool(x) -> if x = True then "true" else "false"
-      | Ast.Length(v) -> create_expr v ^ ".size();"
+      | Ast.Length(v) -> create_expr v ^ ".size()"
       | Ast.Access(v,e) -> create_expr v ^ "[int(" ^ ( create_expr e ) ^ ")]"
    	   
    	   

@@ -1,16 +1,3 @@
-/*
-    Method :
-        rect(point xy, num h, num w)
-    
-    Return :
-        void
-        
-    Description :
-        Prints a rectangle, from point x,y with height h and width w The function rectangle supported as libray.
-    
-    Future Todo :
-        Send hash, to set the properties of the graph like axis, grid, title etc 
- */
 fn rect(point a, num h, num w):
     num i
     num x
@@ -30,9 +17,10 @@ end
     
     Return :
         void
+        Prints a fitting barGraph for the given data
         
     Description :
-        Prints a fitting barGraph for the given data. The function bargraph supported as libray. Users can write their own too. It takes the list of num and automatically fits it in the graph based on the data.
+        The function bargraph supported as libray. Users can write their own too. It takes the list of num and automatically fits it in the graph based on the data.
     The user just needs to call the function with the data
     
     Future Todo :
@@ -71,12 +59,9 @@ fn barGraph(list num a):
     padVt = 10
     
     #bar graph settings 10% of the graph
-    gap         = maxLength - padHz 
-    gap         = 0.1 * gap / maxDataLn
-    barWidth    = maxLength - padHz
-    barWidth    = 0.9 * barWidth / maxDataLn
-    scaleFactor = maxHeight - padVt
-    scaleFactor = scaleFactor / maxDataHt
+    gap         = 0.1 * (maxLength - padHz) / maxDataLn
+    barWidth    = 0.9 * (maxLength - padHz) / maxDataLn
+    scaleFactor = (maxHeight - padVt) / maxDataHt
     
     #Draw the bars, scaled and with the gap
     num x
@@ -92,3 +77,6 @@ fn barGraph(list num a):
     
 end
 
+list num a
+a = [11,4,25.6,10,12,50,10,30,5]
+barGraph(a)
