@@ -1,7 +1,7 @@
 
 open Ast
 
-type t =  Num | Bool | String | Point | List
+type t =  Num | Bool | String | Point | List | Void
         | ListNum | ListString | ListPoint | ListBool
 
 type texpr =

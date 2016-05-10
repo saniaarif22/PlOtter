@@ -6,7 +6,7 @@ module StringMap = Map.Make(String)
 type s_env = 
         {      var_types: string StringMap.t ref list;
                var_inds : int StringMap.t ref list;
-               f_list   : string list;
+               f_list   : string StringMap.t ref list;
         }
     
 let check stmts =  
@@ -28,8 +28,8 @@ let check stmts =
     in
     
     let rec find_f_name lt s =  match lt with
-    | [] -> []
-    | hd :: tl ->  if hd=s then fail("Function name already exists")
+    | [] -> "success"
+    | hd :: tl ->  if hd=s then "fail"
                    else find_f_name tl s
     in
     
@@ -74,7 +74,7 @@ let check stmts =
     let sast_env = 
         {      var_types    = [ref StringMap.empty];
                var_inds     = [ref StringMap.empty];
-               f_list       = [];
+               f_list      =  [ref StringMap.empty];
         }
 
     in
@@ -356,14 +356,20 @@ let check stmts =
                     let fnEnv = {      
                             var_types   =  [ref StringMap.empty];
                             var_inds    =  [ref StringMap.empty];
-                            f_list      =  [];
+                            f_list      =  [ref StringMap.empty];
                     } in
+                    let f_name = 
+                        (try 
+                        ignore (StringMap.find f.fname !(List.hd env.f_list)); 
+                            fail ("Function already declared in local scope: " ^ f.fname)
+                         with | Not_found -> (List.hd env.f_list) := StringMap.add f.fname "function" !(List.hd env.f_list);
+                              | Failure(f) -> raise (Failure (f) ) 
+                        );
+                        
+                    
+                    in
                     let fargs = List.map (fun s -> stmt fnEnv s) f.args in
                     let fstms = List.map (fun s -> stmt fnEnv s) f.body in
-                    
-                    let c = find_f_name env.f_list f.fname;
-                    env.f_list = f.fname::env.f_list;
-                    in
                     Sast.Fdecl({
                         fname = f.fname;
                         args  = fargs;
