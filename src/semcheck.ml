@@ -6,7 +6,7 @@ module StringMap = Map.Make(String)
 type s_env = 
         {      var_types: string StringMap.t ref list;
                var_inds : int StringMap.t ref list;
-               f_list   : string list;
+               f_list   : string StringMap.t ref list;
         }
     
 let check stmts =  
@@ -27,12 +27,6 @@ let check stmts =
         max 0 bindings
     in
     
-    let rec find_f_name lt s =  match lt with
-    | [] -> []
-    | hd :: tl ->  if hd=s then fail("Function name already exists")
-                   else find_f_name tl s
-    in
-    
     let type_to_str t = match t with 
         | Sast.Num          -> "num"
         | Sast.String       -> "string"
@@ -46,18 +40,6 @@ let check stmts =
         
     in
     
-    let str_to_type str_typ = function
-        | "num"         -> Sast.Num
-        | "string"      -> Sast.String
-        | "bool"        -> Sast.Bool
-        | "point"       -> Sast.Point
-        | "listnum"     -> Sast.ListNum
-        | "liststring"  -> Sast.ListString
-        | "listpoint"   -> Sast.ListPoint
-        | "listbool"    -> Sast.ListBool
-        | "list"        -> Sast.List
-        
-    in
     (* Setting Environment for Sast *)
     let find_var var map_list =
         let rec finder var = function
@@ -74,7 +56,7 @@ let check stmts =
     let sast_env = 
         {      var_types    = [ref StringMap.empty];
                var_inds     = [ref StringMap.empty];
-               f_list       = [];
+               f_list      =  [ref StringMap.empty];
         }
 
     in
@@ -86,11 +68,13 @@ let check stmts =
     let typeof elem = match elem with
         | Sast.Literal_Num(_,t) -> t
         | Sast.Literal_Str(_,t) -> t
+        | Sast.Point(_,_,t) -> t
         | Sast.Literal_List(_,t) -> t
         | Sast.Binop(_,_,_,t) -> t
         | Sast.Id(_,t) -> t
         | Sast.Bool(_,t) -> t
         | Sast.Length(_,t) -> t
+        | Sast.Access(_,_,_,t) -> t
     in
     
     (* COnverting Ast to Sast *)
@@ -100,6 +84,14 @@ let check stmts =
         let rec expr env = function
             | Ast.Literal_Num(v) -> Sast.Literal_Num(v, Sast.Num)
             | Ast.Literal_Str(v) -> Sast.Literal_Str(v, Sast.String)
+            | Ast.Point(e1, e2) -> 
+                let se1 = expr env e1 in 
+                let se2 = expr env e2 in 
+                let te1 = typeof se1 in
+                let te2 = typeof se2 in
+                if( te1=te2 && te1=Sast.Num)
+                then Sast.Point(se1, se2, Sast.Point)
+                else fail("Point's value should only be of type num.")
             | Ast.Literal_List(v) -> 
                     let tv = List.map (fun s -> expr env s) v in
                     (match tv with 
@@ -127,10 +119,39 @@ let check stmts =
                         | "liststring"  ->  Sast.Id(v, Sast.ListString)
                         | "listpoint"   ->  Sast.Id(v, Sast.ListPoint)
                         | "listbool"    ->  Sast.Id(v, Sast.ListBool)
+                        | _             ->  fail(" Invalid type..")
                     )
                  with
                  | Not_found -> fail ("undeclared variable: " ^ v)
                 )
+            | Ast.Access(v, e) -> 
+                let sv = expr env v in
+                let se = expr env e in
+                let tv = typeof sv in
+                let te = typeof se in
+                if ( te=Sast.Num )
+                then (
+                    if (tv = Sast.ListNum)
+                    then Sast.Access(sv, se, Sast.ListNum, Sast.Num)
+                    else (
+                        if (tv= Sast.ListString)
+                        then Sast.Access(sv, se, Sast.ListString, Sast.String)
+                        else (
+                            if (tv= Sast.ListBool)
+                            then Sast.Access(sv, se, Sast.ListBool, Sast.Bool)
+                            else (
+                                if (tv= Sast.ListPoint)
+                                then Sast.Access(sv, se, Sast.ListPoint, Sast.Point)
+                                else (if (tv= Sast.Point)
+                                    then Sast.Access(sv, se, Sast.Point, Sast.Num)
+                                    else ( fail("'access' operations can be performed only on List variables. Here its applied on "^ type_to_str tv)
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                else fail ("The 'index' in list_elem.at(index)  should be of num type only." ^ (type_to_str tv))
             | Ast.Length(v) -> 
                 let sv = expr env v in
                 let tv = typeof sv in
@@ -153,7 +174,7 @@ let check stmts =
                             | _ -> fail ("Incorrect type " ^ (type_to_str e2_data) ^ " with Num"))
                     | _ -> fail ("Operation on incompatible types")
                     )
-                | Equal | Neq ->
+                | Equal | Neq  ->
                     (match e1_data with 
                     | Num ->
                         (match e2_data with
@@ -170,8 +191,14 @@ let check stmts =
                             | Bool -> Sast.Binop(se1, op, se2, Sast.Bool)
                             | _ -> fail("Incorrect type with Bool == or != ")
                         )
+                    | _  -> fail("Type which is not num, string or bool cannot be used in equal or neq")
                     (*| Void  -> fail ("Cannot perform binop on void") *)
                     )
+
+                | And | Or  ->
+                    if ( (e1_data=Num || e1_data=Bool ) && (e2_data=Num || e2_data=Bool) )
+                    then Sast.Binop(se1, op, se2, Sast.Bool)
+                    else fail("Incorrect type with 'and' and 'or'")
 
                 | Less | Leq | Greater | Geq ->
                     (match e1_data with 
@@ -187,6 +214,15 @@ let check stmts =
                         )
                     | _ -> fail ("Cannot perform less and grt ops on these types")
                     )
+                | Mod | Square ->
+                    (match e1_data with 
+                    | Num ->
+                        (match e2_data with
+                            | Num -> Sast.Binop(se1, op, se2, Sast.Bool)
+                            | _ -> fail("Incorrect type for mod. both should be num")
+                        )
+                    | _ -> fail("Mod & square can only be used with num")
+                    )
                 )
         in
 
@@ -197,16 +233,14 @@ let check stmts =
                 let se = expr env e in
                 let tp = typeof se in
                 Sast.Expr(se, tp)
-            | Ast.Passign(v,e1,e2) -> 
+            | Ast.Passign(v,e1,e) -> 
                 let sv = expr env v in
                 let se1 = expr env e1 in
-                let se2 = expr env e2 in
                 let tv = typeof sv in
                 let te1 = typeof se1 in
-                let te2 = typeof se2 in
-                if ( tv = Sast.Point && te2 = Sast.Num && te1 = Sast.Num )
-                    then Sast.Passign(sv, se1, se2)
-                else fail ("Invalid type assign. cannot assign " ^ (type_to_str te1) ^ "," ^ (type_to_str te2)  ^ " to type " ^ (type_to_str tv))
+                if ( tv = Sast.Point && te1 = tv )
+                    then Sast.Passign(sv, se1)
+                else fail ("Invalid type assign. cannot assign " ^ (type_to_str te1) ^ " to type " ^ (type_to_str tv))
             | Ast.Assign(v,e) -> 
                 let sv = expr env v in
                 let se = expr env e in
@@ -234,17 +268,6 @@ let check stmts =
                     then Sast.Remove(sv, se)
                     else fail("The 'index' in *.pop(index) should be of num type only. It cannot be of type " ^ (type_to_str te))
                 else fail ("'access' operations can be performed only on List variables.")
-            | Ast.Access(v, e) -> 
-                let sv = expr env v in
-                let se = expr env e in
-                let tv = typeof sv in
-                let te = typeof se in
-                if ( (tv = Sast.ListNum) || (tv = Sast.ListPoint) || (tv = Sast.ListString) || (tv = Sast.ListBool))
-                then
-                    if ( te=Sast.Num )
-                    then Sast.Access(sv, se)
-                    else fail("The 'index' in list_elem.at(index)  should be of num type only." ^ (type_to_str te))
-                else fail ("'access' operations can be performed only on List variables.")
             | Ast.Pop(v) -> 
                 let sv = expr env v in
                 let tv = typeof sv in
@@ -253,6 +276,7 @@ let check stmts =
                 else fail ("'pop()' can be performed only on List variables.")
             | Ast.Fcall(v, el) -> 
                 let sel = List.map (fun s -> expr env s) el in
+                (* Check if function is present *)
                 Sast.Fcall(v, sel)
             | Ast.Var_Decl(dt, id) -> 
                 (try 
@@ -342,14 +366,20 @@ let check stmts =
                     let fnEnv = {      
                             var_types   =  [ref StringMap.empty];
                             var_inds    =  [ref StringMap.empty];
-                            f_list      =  [];
+                            f_list      =  [ref StringMap.empty];
                     } in
+                    let f_name = 
+                        (try 
+                        ignore (StringMap.find f.fname !(List.hd env.f_list)); 
+                            fail ("Function already declared in local scope: " ^ f.fname)
+                         with | Not_found -> (List.hd env.f_list) := StringMap.add f.fname "function" !(List.hd env.f_list);
+                              | Failure(f) -> raise (Failure (f) ) 
+                        );
+                        
+                    
+                    in
                     let fargs = List.map (fun s -> stmt fnEnv s) f.args in
                     let fstms = List.map (fun s -> stmt fnEnv s) f.body in
-                    (*
-                    let c = find_f_name env.f_list f.fname in
-                    env.f_list = f.fname::env.f_list in
-                    *)
                     Sast.Fdecl({
                         fname = f.fname;
                         args  = fargs;

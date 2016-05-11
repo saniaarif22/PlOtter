@@ -8,13 +8,16 @@
 
 # 1st arg - input .plt file
 
-set -e 
-
 f=$1
 l=${#f} 
 
 file=${f::l-4}
 
+#attach the libraries
+python incLib.py $1
+
+#EOL EOF issue fix
+printf "\n" >> $1
 
 ./plotter < $1 > $file.cpp
 
@@ -24,4 +27,10 @@ g++ -std=c++11 $file.cpp
 
 mv hello.svg $file.svg
 
+#reset the file to normal
+rm $file.plt
+cp $file.plt_tmp $file.plt
+rm $file.plt_tmp
+
+#remove the cpp and out files
 rm $file.cpp a.out

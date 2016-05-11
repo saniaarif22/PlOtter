@@ -7,10 +7,11 @@ let convert prog =
   let rec create_expr = function
       | Ast.Literal_Num(l) -> (string_of_float l) ^ "0"
       | Ast.Literal_Str(l) -> l 
+      | Ast.Point(e1,e2) -> "(float[2]){(float)(" ^ create_expr e1^ "),(float)(" ^ create_expr e2 ^ ")}" 
       | Ast.Literal_List(l)-> "{" ^ (String.concat "," (List.map  create_expr l) ) ^ "}"
-      | Ast.Id(s) -> s
+      | Ast.Id(s) -> "(" ^ s ^ ")"
       | Ast.Binop(e1, o, e2) -> 
-      			create_expr e1 ^ " " ^
+      			"(" ^ create_expr e1 ^ " " ^
       			(match o with
 		Add -> "+" | Sub -> "-" | Mul -> "*" | Div -> "/"
       		| Equal -> "==" | Neq -> "!="
@@ -19,11 +20,17 @@ let convert prog =
       		| Square -> "**"
       		| Less -> "<" | Leq -> "<=" 
       		| Greater -> ">" | Geq -> ">="
-      		) ^ " " ^ create_expr e2
+      		) ^ " " ^ create_expr e2 ^ ")"
       | Ast.Bool(x) -> if x = True then "true" else "false"
-      | Ast.Length(v) -> create_expr v ^ ".size();"
+      | Ast.Length(v) -> create_expr v ^ ".size()"
+      | Ast.Access(v,e) -> create_expr v ^ "[int(" ^ ( create_expr e ) ^ ")]"
+   	   
    	   
    
+   in
+   let printAssign v e = match e with
+        | Ast.Point(e1,e2) -> "__inbuildt_cp(" ^ create_expr v ^ ", " ^ create_expr e ^ ");"
+        | _ -> create_expr v ^ " = " ^ ( create_expr e ) ^ ";"
    in
    let printFunArgs = function
        | Ast.Var_Decl(tp, id) -> 
@@ -35,10 +42,10 @@ let convert prog =
             ) 
        | Ast.List_Decl(tp, id) -> 
             (match tp with
-                  "num" -> "vector <float>" ^ " *" ^ id
-                | "string" -> "vector <string>" ^ " " ^ id
-                | "point" -> "vector <array<float, 2>>" ^ " " ^ id
-                | _ -> "vector <bool>" ^ " " ^ id
+                  "num" -> "vector <float>" ^ " & " ^ id
+                | "string" -> "vector <string>" ^ " & " ^ id
+                | "point" -> "vector <array<float, 2>>" ^ " & " ^ id
+                | _ -> "vector <bool>" ^ " & " ^ id
             )
         | _ -> raise (Failure "Its not possible :P ")
    in
@@ -63,15 +70,13 @@ let convert prog =
                 | "point" -> "vector <array<float, 2>>" ^ " " ^ id ^ ";\n"
                 | _ -> "vector <bool>" ^ " " ^ id ^ ";\n"
             ) 
-   	   | Ast.Passign(v, e1, e2) -> 
+   	   | Ast.Passign(v, e, e2) -> 
             (* Setting the point elements seperately *)
-            create_expr v ^ "[0] = " ^ ( create_expr e1 ) ^ ";\n" ^ 
-            create_expr v ^ "[1] = " ^ ( create_expr e2 ) ^ ";\n"
-   	   | Ast.Assign(v, e) -> create_expr v ^ " = " ^ ( create_expr e ) ^ ";"
+            "__inbuildt_cp(" ^ create_expr v ^ ", (float[2])" ^ create_expr e ^ ")"
+   	   | Ast.Assign(v, e) -> printAssign v e
    	   | Ast.Append(v, e) -> create_expr v ^ ".push_back(" ^ ( create_expr e ) ^ ");\n"
    	   | Ast.Pop(v) -> create_expr v ^ ".pop_back();\n"
    	   | Ast.Remove(v,e) -> create_expr v ^ ".erase(" ^ (create_expr v) ^ ".begin() + " ^ ( create_expr e ) ^ ");\n"
-   	   | Ast.Access(v,e) -> create_expr v ^ ".at(" ^ ( create_expr e ) ^ ");\n"
    	   | Ast.Print(e) -> "put_in_svg( " ^ create_expr e ^ ");\n"
        | Ast.LineVar(e1, e2) -> "put_in_svg (" ^ create_expr e1 ^ "," ^ create_expr e2 ^");\n"
        | Ast.LineRaw(e1, e2, e3, e4) -> "put_in_svg (" ^ create_expr e1 ^ "," ^ create_expr e2 
@@ -81,8 +86,8 @@ let convert prog =
        | Ast.For(s1, e1, s2, body) -> "for (" ^ create_stmt s1 ^ " " ^ create_expr e1 ^ " ; "
                                       ^ ( remSemColon (create_stmt s2 )) ^ " ) { \n" 
                                       ^ String.concat "" (List.map create_stmt body) ^ "\n } \n"
-       | Ast.While(e, body) -> "while (" ^ create_expr e ^ ") { \n" ^ String.concat "" (List.map create_stmt body) ^ "}\n"
-       | Ast.Ifelse(e, s1, s2) -> "if (" ^ create_expr e ^ ") { \n" ^ String.concat "" (List.map create_stmt s1)
+       | Ast.While(e, body) -> "while " ^ create_expr e ^ " { \n" ^ String.concat "" (List.map create_stmt body) ^ "}\n"
+       | Ast.Ifelse(e, s1, s2) -> "if " ^ create_expr e ^ " { \n" ^ String.concat "" (List.map create_stmt s1)
             ^ "} else { \n" ^ String.concat "" (List.map create_stmt s2) ^ "}\n"
    	   | Ast.Return(expr) -> "return " ^ create_expr expr ^ ";\n"
    	   | Ast.Noexpr       -> ""
@@ -102,7 +107,16 @@ let convert prog =
 
     "ofstream f;\n"^
     "// SVG content\n"^
-    
+    "void __inbuildt_cp(float a[2], float b[2]) {" ^
+	"a[0] = *b;" ^
+	"a[1] = *(b+1);	" ^ 
+    "}" ^ 
+    "void put_in_svg(float p1[])\n" ^
+    "{  \n" ^
+    "    f << \"<text x='250' y='150'>\\n\";\n"^
+    "    f << p1[0] << \"  \" << p1[1];\n" ^
+    "    f << \"\\n</text>\\n\";\n"^
+    "}\n" ^
     "void put_in_svg(float p1[], float p2[])\n"^
     "{"^
     "  f << \"<line x1='\" + to_string(p1[0]) + \"' y1='\"+  to_string(p1[1])+\"' x2='\"+ to_string(p2[0]) +\"' y2='\"+ to_string(p2[1]) +\"' style='stroke:rgb(0,0,0);stroke-width:1'/>\\n\"; \n" ^

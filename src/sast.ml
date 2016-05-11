@@ -8,21 +8,22 @@ type texpr =
       Literal_Num of float * t
     | Literal_Str of string * t
     | Literal_List of texpr list * t
+    | Point of texpr * texpr * t
     | Binop of texpr * Ast.ops * texpr * t
     | Id of string * t
     | Bool of bool * t
     | Length  of texpr * t
+    | Access of texpr * texpr * t * t
   
 
 type tstmt =
     Expr of texpr * t
   | Var_Decl of string * string * t
   | List_Decl of string * string *  t
-  | Passign of texpr * texpr * texpr
+  | Passign of texpr * texpr
   | Assign of texpr * texpr
   | Append of texpr * texpr
   | Remove of texpr * texpr
-  | Access of texpr * texpr
   | Pop    of texpr
   | Fcall  of string * texpr list
   | Print of texpr
@@ -61,6 +62,7 @@ let typeof t =
 let rec string_of_texpr = function
     Literal_Num(l, t) -> string_of_float l ^ typeof t
   | Literal_Str(l, t) -> l ^ typeof t
+  | Point(e1, e2, t) -> "(" ^ string_of_texpr e2 ^ "," ^ string_of_texpr e2 ^ ")" ^ typeof t
   | Literal_List(l, t) ->  typeof t
   | Id(s, t) -> s ^ typeof t
   | Length(v,_)  -> string_of_texpr v ^ ".length()"
@@ -76,6 +78,8 @@ let rec string_of_texpr = function
       | Greater -> ">" | Geq -> ">="
       ) ^ " " ^ string_of_texpr e2 ^ typeof t
   | Bool(x, t) -> if x = True then "true" else "false" ^ typeof t
+  | Access(v, e, t1, t2) -> string_of_texpr v ^ ".at(" ^ ( string_of_texpr e ) ^ ")" ^ " //of type " ^ typeof t1 ^ typeof t2
+  
 
 
 let rec string_of_tstmt = function
@@ -83,11 +87,10 @@ let rec string_of_tstmt = function
   | Noexpr -> ""
   | Var_Decl(tp, id, t) -> tp ^ " " ^ id ^ "\n" ^ typeof t
   | List_Decl(tp, id, t) -> "list" ^ tp ^ " " ^ id ^ "\n" ^ typeof t
-  | Passign(v, e1, e2) -> string_of_texpr v ^ " = (" ^ ( string_of_texpr e1 ) ^ "," ^ ( string_of_texpr e2 ) ^ ")\n"
+  | Passign(v, e1) -> string_of_texpr v ^ " = " ^ ( string_of_texpr e1 ) ^ "\n"
   | Assign(v, e) -> string_of_texpr v ^ " = " ^ ( string_of_texpr e )
   | Append(v, e) -> string_of_texpr v ^ ".append(" ^ ( string_of_texpr e ) ^ ")"
   | Remove(v, e) -> string_of_texpr v ^ ".remove(" ^ ( string_of_texpr e ) ^ ")"
-  | Access(v, e) -> string_of_texpr v ^ ".at(" ^ ( string_of_texpr e ) ^ ")"
   | Pop(v) -> string_of_texpr v ^ ".pop()"
   | Fcall(v, el)  ->  v ^ "("^ (String.concat "," (List.map string_of_texpr el)) ^")\n"
   | Print(e) -> "print " ^ string_of_texpr e ^ "\n"

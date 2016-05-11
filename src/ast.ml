@@ -13,24 +13,26 @@ type bool =
 type expr =
     Literal_Num of float
   | Literal_Str of string
-  | Literal_List of expr list           (* Eg [ expr, expr, .. ] *)
-  | Binop of expr * ops * expr          (* Binary Ops *)
-  | Id of string                        (* identifiers *)
-  | Bool of bool                        (* True *)
+  | Point of expr * expr
+  | Literal_List of expr list               (* Eg [ expr, expr, .. ] *)
+  | Binop of expr * ops * expr              (* Binary Ops *)
+  | Id of string                            (* identifiers *)
+  | Bool of bool                            (* True *)
   | Length of expr                          (* a.length() *)
+  | Access of expr * expr                   (* a.at(3), a[3] *)
+  
 
 
 type stmt = (* Statements *)
     Expr of expr
   | Var_Decl of string * string             (* (type, id) *)
   | List_Decl of string * string
-  | Passign of expr * expr * expr           (* (type, p1, p2) *)
+  | Passign of expr * expr * stmt                  (* (type, p1, p2) *)
   | Assign of expr * expr                   (* a = 2 *)
   | Append of expr * expr                   (* a.append(7) *)
   | Pop of expr                             (* a.pop() *)
   | Remove of expr * expr                   (* a.remove(3) *)
-  | Access of expr * expr                   (* a.at(3), a[3] *)
-  | Fcall  of string * expr list              (* a.() *)
+  | Fcall  of string * expr list            (* a.() *)
   | Print of expr                           (* print 5 *)
   | LineVar of expr * expr                  (* line(p,q) *)
   | LineRaw of expr * expr * expr * expr    (* line((3,4), (7,9)) *)
@@ -61,6 +63,7 @@ type program = {
 let rec string_of_expr = function
     Literal_Num(l) -> string_of_float l ^ "0"
   | Literal_Str(l) -> l
+  | Point(e1, e2) -> "(" ^ string_of_expr e1 ^ "," ^ string_of_expr e2 ^ ")"
   | Literal_List(l) -> "[" ^ (String.concat "," (List.map string_of_expr l)) ^ "]"
   | Id(s) -> s
   | Binop(e1, o, e2) ->
@@ -76,6 +79,8 @@ let rec string_of_expr = function
       ) ^ " " ^ string_of_expr e2
   | Bool(x) -> if x = True then "true" else "false"
   | Length(v) -> string_of_expr v ^ ".length()\n"
+  | Access(v, e) -> string_of_expr v ^ ".at(" ^ ( string_of_expr e ) ^ ")\n"
+  
   
 
       
@@ -83,12 +88,11 @@ let rec string_of_stmt = function
     Expr(expr) -> string_of_expr expr ^ ""
   | Var_Decl(tp, id) -> tp ^ " " ^ id ^ "\n"
   | List_Decl(tp, id) -> "list " ^ tp ^ " " ^ id ^ "\n"
-  | Passign(v, e1, e2) -> string_of_expr v ^ " = (" ^ ( string_of_expr e1 ) ^ "," ^ (string_of_expr e2) ^ ")\n"
-  | Assign(v, e) -> string_of_expr v ^ " = " ^ ( string_of_expr e )
+  | Passign(v, e1, e) -> " " ^ string_of_expr v ^ " = " ^ ( string_of_expr e1 ) ^ "\n"
+  | Assign(v, e) -> "" ^ string_of_expr v ^ " = " ^ ( string_of_expr e )
   | Append(v, e) -> string_of_expr v ^ ".append(" ^ ( string_of_expr e ) ^ ")\n"
   | Pop(v) -> string_of_expr v ^ ".pop()\n"
   | Remove(v, e) -> string_of_expr v ^ ".remove(" ^ ( string_of_expr e ) ^ ")\n"
-  | Access(v, e) -> string_of_expr v ^ ".at(" ^ ( string_of_expr e ) ^ ")\n"
   | Fcall(v, el) ->  v ^ "("^ (String.concat "," (List.map string_of_expr el)) ^")\n"
   | Print(e) -> "print " ^ string_of_expr e ^ "\n"
   | LineVar(e1,e2)-> "line (" ^ string_of_expr e1 ^ "," ^ string_of_expr e2 ^ ")" ^ "\n"
