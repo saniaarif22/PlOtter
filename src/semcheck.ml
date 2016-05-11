@@ -27,12 +27,6 @@ let check stmts =
         max 0 bindings
     in
     
-    let rec find_f_name lt s =  match lt with
-    | [] -> "success"
-    | hd :: tl ->  if hd=s then "fail"
-                   else find_f_name tl s
-    in
-    
     let type_to_str t = match t with 
         | Sast.Num          -> "num"
         | Sast.String       -> "string"
@@ -46,18 +40,6 @@ let check stmts =
         
     in
     
-    let str_to_type str_typ = function
-        | "num"         -> Sast.Num
-        | "string"      -> Sast.String
-        | "bool"        -> Sast.Bool
-        | "point"       -> Sast.Point
-        | "listnum"     -> Sast.ListNum
-        | "liststring"  -> Sast.ListString
-        | "listpoint"   -> Sast.ListPoint
-        | "listbool"    -> Sast.ListBool
-        | "list"        -> Sast.List
-        
-    in
     (* Setting Environment for Sast *)
     let find_var var map_list =
         let rec finder var = function
@@ -137,6 +119,7 @@ let check stmts =
                         | "liststring"  ->  Sast.Id(v, Sast.ListString)
                         | "listpoint"   ->  Sast.Id(v, Sast.ListPoint)
                         | "listbool"    ->  Sast.Id(v, Sast.ListBool)
+                        | _             ->  fail(" Invalid type..")
                     )
                  with
                  | Not_found -> fail ("undeclared variable: " ^ v)
@@ -208,6 +191,7 @@ let check stmts =
                             | Bool -> Sast.Binop(se1, op, se2, Sast.Bool)
                             | _ -> fail("Incorrect type with Bool == or != ")
                         )
+                    | _  -> fail("Type which is not num, string or bool cannot be used in equal or neq")
                     (*| Void  -> fail ("Cannot perform binop on void") *)
                     )
 
@@ -229,6 +213,15 @@ let check stmts =
                             | _ -> fail ("cannot mix string and  < or <= or > or >= ")
                         )
                     | _ -> fail ("Cannot perform less and grt ops on these types")
+                    )
+                | Mod | Square ->
+                    (match e1_data with 
+                    | Num ->
+                        (match e2_data with
+                            | Num -> Sast.Binop(se1, op, se2, Sast.Bool)
+                            | _ -> fail("Incorrect type for mod. both should be num")
+                        )
+                    | _ -> fail("Mod & square can only be used with num")
                     )
                 )
         in
