@@ -11,7 +11,6 @@ let match_of e = match e with
 | Ast.Mod -> Tast.Mod
 | Ast.Equal -> Tast.Equal
 | Ast.Neq -> Tast.Neq
-| Ast.Add -> Tast.Add
 | Ast.Less -> Tast.Less
 | Ast.Leq -> Tast.Leq
 | Ast.Greater -> Tast.Greater
@@ -35,6 +34,14 @@ let convert_to_cppast stmts_list =
         let top = match_of op in
         Tast.Binop(te1, top, te2)
     | Ast.Id(v)          -> Tast.Id(v)
+    | Ast.Access(v,e) ->
+        let texpr_acc = convert_to_texpr e in
+        let tv = convert_to_texpr v in
+        Tast.Access(tv, texpr_acc)
+    | Ast.Point(e1, e2) -> 
+        let te1 = convert_to_texpr e1 in
+        let te2 = convert_to_texpr e2 in
+        Tast.Point(te1, te2) 
 
   in
 
@@ -45,11 +52,7 @@ let convert_to_cppast stmts_list =
         Tast.Texpr(texpr)
     | Ast.Var_Decl(t,e) ->Tast.Var_Decl(t,e)
     | Ast.List_Decl(t,id) -> Tast.List_Decl(t, id)
-    | Ast.Passign(v,e1,e2) ->
-      let texpr1 = convert_to_texpr e1 in
-      let texpr2 = convert_to_texpr e2 in
-      let tv = convert_to_texpr v in
-      Tast.Passign(tv,texpr1, texpr2)
+    | Ast.Passign(v,e1,e2) -> Tast.Noexpr
     | Ast.Assign(v,e) ->
       let te1 = convert_to_texpr e in
       let tv = convert_to_texpr v in
@@ -63,10 +66,6 @@ let convert_to_cppast stmts_list =
         let texpr_rm = convert_to_texpr e in
         let tv = convert_to_texpr v in
         Tast.Remove(tv, texpr_rm)
-    | Ast.Access(v,e) ->
-        let texpr_acc = convert_to_texpr e in
-        let tv = convert_to_texpr v in
-        Tast.Access(tv, texpr_acc)
     | Ast.Pop(e) -> Tast.Pop(convert_to_texpr e)
     | Ast.LineVar(e1,e2) ->
       let texpr1 = convert_to_texpr e1 in
@@ -104,7 +103,19 @@ let convert_to_cppast stmts_list =
                 args  = f_args;
                 body  = f_body;
                 })
+    | Ast.Fcall(f, el) ->
+        let tel = List.map (fun s -> convert_to_texpr s) el in
+        Tast.Fcall(f, tel)
+    | Ast.PrintXY (e1, e2) ->
+        let te1 = convert_to_texpr e1 in
+        let te2 = convert_to_texpr e2 in
+        Tast.PrintXY(te1, te2)
+    | Ast.LinePX(e1, e2, e3) -> 
+        let te1 = convert_to_texpr e1 in
+        let te2 = convert_to_texpr e2 in
+        let te3 = convert_to_texpr e3 in
+        Tast.LinePX(te1, te2, te3)
+    | Ast. Noexpr -> Tast.Noexpr      
 
   in
   List.map (fun s -> convert_to_tstmt s) stmts_list;
-  print_string (Tast.string_of_tprogram (List.map convert_to_tstmt Tast.program))

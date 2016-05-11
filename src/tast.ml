@@ -9,28 +9,31 @@ type bool =
         | True | False
 
 
-(*texpressions*)
+(*expressions*)
 type texpr =
     Literal_Num of float
   | Literal_Str of string
-  | Literal_List of texpr list           (* Eg [ texpr, texpr, .. ] *)
-  | Binop of texpr * ops * texpr          (* Binary Ops *)
-  | Id of string                        (* identifiers *)
-  | Bool of bool                        (* True *)
+  | Point of texpr * texpr
+  | Literal_List of texpr list               (* Eg [ texpr, texpr, .. ] *)
+  | Binop of texpr * ops * texpr              (* Binary Ops *)
+  | Id of string                            (* identifiers *)
+  | Bool of bool                            (* True *)
   | Length of texpr                          (* a.length() *)
+  | Access of texpr * texpr                   (* a.at(3), a[3] *)
+  
 
 
 type tstmt = (* Statements *)
     Texpr of texpr
   | Var_Decl of string * string             (* (type, id) *)
   | List_Decl of string * string
-  | Passign of texpr * texpr * texpr           (* (type, p1, p2) *)
+  | Passign of texpr * texpr * tstmt                  (* (type, p1, p2) *)
   | Assign of texpr * texpr                   (* a = 2 *)
   | Append of texpr * texpr                   (* a.append(7) *)
   | Pop of texpr                             (* a.pop() *)
   | Remove of texpr * texpr                   (* a.remove(3) *)
-  | Access of texpr * texpr                   (* a.at(3), a[3] *)
-  | Fcall  of string * texpr list              (* a.() *)
+  | Fcall  of string * texpr list            (* a.() *)
+  | PrintXY of texpr * texpr                  (* printXY ( 5 , (1,2)) *)
   | Print of texpr                           (* print 5 *)
   | LineVar of texpr * texpr                  (* line(p,q) *)
   | LineRaw of texpr * texpr * texpr * texpr    (* line((3,4), (7,9)) *)
@@ -39,34 +42,35 @@ type tstmt = (* Statements *)
   | While  of texpr * tstmt list
   | Ifelse of texpr * tstmt list * tstmt list
   | Return of texpr
-  | Notexpr
+  | Noexpr
   | Fdecl of fdecl and
        fdecl = {
         fname : string;
         args  : tstmt list;
         body  : tstmt list;
       }
+  
 
 
-
-type program = {
+type tprogram = {
                     funcs : tstmt list;
                     main  : tstmt list;
                }
+                
 
 
-
-(* Pretty Print *)
+(* Pretty Print 
 
 let rec string_of_texpr = function
     Literal_Num(l) -> string_of_float l ^ "0"
   | Literal_Str(l) -> l
+  | Point(e1, e2) -> "(" ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ")"
   | Literal_List(l) -> "[" ^ (String.concat "," (List.map string_of_texpr l)) ^ "]"
   | Id(s) -> s
   | Binop(e1, o, e2) ->
       string_of_texpr e1 ^ " " ^
       (match o with
-	Add -> "+" | Sub -> "-" | Mul -> "*" | Div -> "/"
+  Add -> "+" | Sub -> "-" | Mul -> "*" | Div -> "/"
       | Equal -> "==" | Neq -> "!="
       | Mod -> "%"
       | And -> "&&" | Or ->"||"
@@ -76,20 +80,22 @@ let rec string_of_texpr = function
       ) ^ " " ^ string_of_texpr e2
   | Bool(x) -> if x = True then "true" else "false"
   | Length(v) -> string_of_texpr v ^ ".length()\n"
+  | Access(v, e) -> string_of_texpr v ^ ".at(" ^ ( string_of_texpr e ) ^ ")\n"
+  
+  
 
-
-
+      
 let rec string_of_tstmt = function
-    Texpr(texpr) -> string_of_texpr texpr ^ ""
+    texpr(texpr) -> string_of_texpr texpr ^ ""
   | Var_Decl(tp, id) -> tp ^ " " ^ id ^ "\n"
   | List_Decl(tp, id) -> "list " ^ tp ^ " " ^ id ^ "\n"
-  | Passign(v, e1, e2) -> string_of_texpr v ^ " = (" ^ ( string_of_texpr e1 ) ^ "," ^ (string_of_texpr e2) ^ ")\n"
-  | Assign(v, e) -> string_of_texpr v ^ " = " ^ ( string_of_texpr e )
+  | Passign(v, e1, e) -> " " ^ string_of_texpr v ^ " = " ^ ( string_of_texpr e1 ) ^ "\n"
+  | Assign(v, e) -> "" ^ string_of_texpr v ^ " = " ^ ( string_of_texpr e )
   | Append(v, e) -> string_of_texpr v ^ ".append(" ^ ( string_of_texpr e ) ^ ")\n"
   | Pop(v) -> string_of_texpr v ^ ".pop()\n"
   | Remove(v, e) -> string_of_texpr v ^ ".remove(" ^ ( string_of_texpr e ) ^ ")\n"
-  | Access(v, e) -> string_of_texpr v ^ ".at(" ^ ( string_of_texpr e ) ^ ")\n"
   | Fcall(v, el) ->  v ^ "("^ (String.concat "," (List.map string_of_texpr el)) ^")\n"
+  | PrintXY(e1,e2) -> "printXY( " ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ")\n"
   | Print(e) -> "print " ^ string_of_texpr e ^ "\n"
   | LineVar(e1,e2)-> "line (" ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ")" ^ "\n"
   | LineRaw(e1,e2,e3,e4)-> "line ( (" ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ")" ^ "," ^ "(" ^ string_of_texpr e3
@@ -104,13 +110,14 @@ let rec string_of_tstmt = function
   | Notexpr -> ""
   | Fdecl(f) -> string_of_fdecl f and
   string_of_fdecl fdecl =
-      "fn " ^ fdecl.fname ^ "(" ^
+      "fn " ^ fdecl.fname ^ "(" ^ 
         ( String.concat ", " (List.map (fun s -> string_of_tstmt s) fdecl.args) ) ^
          "):\n" ^
       ( String.concat "" (List.map string_of_tstmt fdecl.body) ) ^
       "\nend\n"
 
-let string_of_tprogram prog =
+let string_of_program prog =
   String.concat "\n" (List.map string_of_tstmt prog.funcs)
   ^ "\n-----------\n" ^
-  String.concat "\n" (List.map string_of_tstmt prog.main)
+  String.concat "\n" (List.map string_of_tstmt prog.main) *)
+  
