@@ -66,9 +66,9 @@ fn lineGraph(list num a):
     if a.length() > 0:
         
         for i=1;i<a.length();i=i+1:
-            #y1 = a[j] * scaleFactor
-            #y2 = a[i] * scaleFactor
             line( (x , maxHeight - a[ i - 1 ] * scaleFactor) , ( x + gap , maxHeight- a[ i ]*scaleFactor) )
+            
+            #dots on the data points
             rect ( (x - 2.5, maxHeight - a[ i - 1 ] * scaleFactor - 2.5) , 5 , 5)
             rect ( (x - 2.5, maxHeight - a[ i - 1 ] * scaleFactor - 2.5) , 5 , 5)
             x = x + gap
@@ -81,5 +81,6 @@ list num a
 a = [50,53, 55, 53, 50, 45, 25, 10, 5, 3, 0, 2, 4, 10, 25, 45,60, 75, 85, 90,95, 98, 99, 100]
 lineGraph(a)
 drawAxes( 10,240,640,480)
+
 
 
