@@ -80,6 +80,7 @@ let convert prog =
    	   | Ast.PrintXY(e1,e2) -> "put_in_svg( " ^ create_expr e1 ^ "," ^ create_expr e2 ^");\n"
    	   | Ast.Print(e) -> "put_in_svg( " ^ create_expr e ^ ");\n"
        | Ast.LineVar(e1, e2) -> "put_in_svg (" ^ create_expr e1 ^ "," ^ create_expr e2 ^");\n"
+       | Ast.LineVarColor(e1, e2, c) -> "put_in_svg (" ^ create_expr e1 ^ "," ^ create_expr e2 ^", " ^ create_expr  c ^");\n"
        | Ast.LineRaw(e1, e2, e3, e4) -> "put_in_svg (" ^ create_expr e1 ^ "," ^ create_expr e2 
                                       ^ "," ^ create_expr e3 ^ "," ^ create_expr e4 ^");\n"
        | Ast.LinePX(e1, e2, e3) -> "put_in_svg (" ^ create_expr e1 ^ "," ^ create_expr e2 
@@ -118,9 +119,9 @@ let convert prog =
     "    f << p1[0] << \"  \" << p1[1];\n" ^
     "    f << \"\\n</text>\\n\";\n"^
     "}\n" ^
-    "void put_in_svg(float p1[], float p2[])\n"^
+    "void put_in_svg(float p1[], float p2[], string color=\"black\")\n"^
     "{"^
-    "  f << \"<line x1='\" + to_string(p1[0]) + \"' y1='\"+  to_string(p1[1])+\"' x2='\"+ to_string(p2[0]) +\"' y2='\"+ to_string(p2[1]) +\"' style='stroke:rgb(0,0,0);stroke-width:1'/>\\n\"; \n" ^
+    "  f << \"<line x1='\" + to_string(p1[0]) + \"' y1='\"+  to_string(p1[1])+\"' x2='\"+ to_string(p2[0]) +\"' y2='\"+ to_string(p2[1]) +\"' style='stroke:\" + color+\";stroke-width:1'/>\\n\"; \n" ^
     "}\n"^
 
     "void put_in_svg(float p1[], float p2, float p3)\n"^

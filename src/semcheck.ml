@@ -336,6 +336,16 @@ let check stmts =
                 if( te1 = Sast.Point && te2 = Sast.Point )
                 then Sast.LineVar(se1, se2)
                 else fail ("LineVar has to be called with 2 points")
+            | Ast.LineVarColor(e1, e2,c) -> 
+                let se1 = expr env e1 in
+                let se2 = expr env e2 in
+                let sc  = expr env c in
+                let te1 = typeof se1 in
+                let te2 = typeof se2 in
+                let tc = typeof sc in
+                if( te1 = Sast.Point && te2 = Sast.Point && tc=Sast.String )
+                then Sast.LineVarColor(se1, se2, sc)
+                else fail ("Line has to be called with 2 points and string for color (optional)")
             | Ast.LineRaw(e1, e2, e3, e4) ->
                 let se1 = expr env e1 in
                 let se2 = expr env e2 in

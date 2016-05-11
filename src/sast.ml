@@ -29,6 +29,7 @@ type tstmt =
   | PrintXY of texpr * texpr
   | Print of texpr
   | LineVar of texpr * texpr
+  | LineVarColor of texpr * texpr * texpr
   | LineRaw of texpr * texpr * texpr * texpr
   | LinePX of texpr * texpr * texpr
   | For of tstmt * texpr * tstmt * tstmt list
@@ -97,6 +98,7 @@ let rec string_of_tstmt = function
   | PrintXY(e1,e2) -> "printXY(" ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ")\n"
   | Print(e) -> "print " ^ string_of_texpr e ^ "\n"
   | LineVar(e1,e2)-> "line (" ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ")" ^ "\n"
+  | LineVarColor(e1,e2, c)-> "line (" ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ "," ^ string_of_texpr c ^")" ^ "\n"
   | LineRaw(e1,e2,e3,e4)-> "line ( (" ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ")" ^ "," ^ "("
                             ^ string_of_texpr e3 ^ "," ^ string_of_texpr e4 ^ ") )\n"
   | LinePX(e1, e2, e3)-> "line ( ( " ^ string_of_texpr e1 ^ "," ^ string_of_texpr e2 ^ ") ," ^ string_of_texpr e3 ^ ") \n"

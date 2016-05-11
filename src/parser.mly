@@ -184,7 +184,8 @@ stmt:
     
     
     line:
-        | LINE LPAREN ID COMMA ID RPAREN  { LineVar(Id($3), Id($5) )}
+        | LINE LPAREN ID COMMA ID RPAREN  { LineVar(Id($3), Id($5))}
+        | LINE LPAREN ID COMMA ID COMMA LIT_STR RPAREN  { LineVarColor(Id($3), Id($5) , Literal_Str($7))}
         | LINE  ID COMMA ID RPAREN  { (parse_error "Missing left paren ");}
         | LINE LPAREN ID COMMA ID   { (parse_error "Missing right paren ");}
         | LINE LPAREN ID ID RPAREN  { (parse_error "Missing , ");}

@@ -36,6 +36,7 @@ type stmt = (* Statements *)
   | PrintXY of expr * expr                  (* printXY ( 5 , (1,2)) *)
   | Print of expr                           (* print 5 *)
   | LineVar of expr * expr                  (* line(p,q) *)
+  | LineVarColor of expr * expr * expr      (* line(p,q,"blue") *)
   | LineRaw of expr * expr * expr * expr    (* line((3,4), (7,9)) *)
   | LinePX of expr * expr * expr            (* line((3,4), x) , line(x, (3,4)) *)
   | For of stmt * expr * stmt * stmt list   (* for i=0; i<5; i=i+1: *)
@@ -98,6 +99,7 @@ let rec string_of_stmt = function
   | PrintXY(e1,e2) -> "printXY( " ^ string_of_expr e1 ^ "," ^ string_of_expr e2 ^ ")\n"
   | Print(e) -> "print " ^ string_of_expr e ^ "\n"
   | LineVar(e1,e2)-> "line (" ^ string_of_expr e1 ^ "," ^ string_of_expr e2 ^ ")" ^ "\n"
+  | LineVarColor(e1,e2, c)-> "line (" ^ string_of_expr e1 ^ "," ^ string_of_expr e2 ^ "," ^ string_of_expr c ^ ")" ^ "\n"
   | LineRaw(e1,e2,e3,e4)-> "line ( (" ^ string_of_expr e1 ^ "," ^ string_of_expr e2 ^ ")" ^ "," ^ "(" ^ string_of_expr e3
                               ^ "," ^ string_of_expr e4 ^ ") )\n"
   | LinePX(e1, e2, e3)-> "line ( ( " ^ string_of_expr e1 ^ "," ^ string_of_expr e2 ^ ") ," ^ string_of_expr e3 ^ ") \n"
