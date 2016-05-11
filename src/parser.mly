@@ -169,21 +169,8 @@ stmt:
 
     list_stmt:
         | ID OF APPEND LPAREN expr RPAREN       { Append( Id($1), $5)}
-        | ID APPEND LPAREN expr RPAREN          { (parse_error "Missing . ");}
-        | ID OF LPAREN expr RPAREN              { (parse_error "Missing append/remove/at ");}
-        | ID OF APPEND expr RPAREN              { (parse_error "Missing left paren ");}
-        | ID OF APPEND LPAREN  RPAREN           { (parse_error "Missing expression to append ");}
-        | ID OF APPEND LPAREN expr              { (parse_error "Missing right paren ");}
         | ID OF POP LPAREN RPAREN               { Pop( Id($1) ) }
-        | ID POP LPAREN RPAREN                  { (parse_error "Missing . "); }
-        | ID OF LPAREN RPAREN                   { (parse_error "Missing pop/length/at "); }
-        | ID OF POP RPAREN                      { (parse_error "Missing left paren "); }
-        | ID OF POP LPAREN                      { (parse_error "Missing right paren "); }
         | ID OF REMOVE LPAREN expr RPAREN       { Remove( Id($1), $5 ) }
-        | ID OF REMOVE LPAREN expr              { (parse_error "Missing right paren "); }
-        | ID OF REMOVE  expr RPAREN             { (parse_error "Missing left paren "); }
-        | ID REMOVE LPAREN expr RPAREN          { (parse_error "Missing . "); }
-        | ID OF REMOVE LPAREN RPAREN            { (parse_error "Missing expression to remove "); }
         
     list_assign:
         | ID ASSIGN literal_list {Assign(Id($1), $3) }

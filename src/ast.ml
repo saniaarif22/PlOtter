@@ -88,8 +88,8 @@ let rec string_of_stmt = function
     Expr(expr) -> string_of_expr expr ^ ""
   | Var_Decl(tp, id) -> tp ^ " " ^ id ^ "\n"
   | List_Decl(tp, id) -> "list " ^ tp ^ " " ^ id ^ "\n"
-  | Passign(v, e1, e) -> "pass " ^ string_of_expr v ^ " = " ^ ( string_of_expr e1 ) ^ "\n"
-  | Assign(v, e) -> "ass " ^ string_of_expr v ^ " = " ^ ( string_of_expr e )
+  | Passign(v, e1, e) -> " " ^ string_of_expr v ^ " = " ^ ( string_of_expr e1 ) ^ "\n"
+  | Assign(v, e) -> "" ^ string_of_expr v ^ " = " ^ ( string_of_expr e )
   | Append(v, e) -> string_of_expr v ^ ".append(" ^ ( string_of_expr e ) ^ ")\n"
   | Pop(v) -> string_of_expr v ^ ".pop()\n"
   | Remove(v, e) -> string_of_expr v ^ ".remove(" ^ ( string_of_expr e ) ^ ")\n"
