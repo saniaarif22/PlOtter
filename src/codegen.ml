@@ -9,7 +9,7 @@ let convert prog =
       | Ast.Literal_Str(l) -> l 
       | Ast.Point(e1,e2) -> "(float[2]){(float)(" ^ create_expr e1^ "),(float)(" ^ create_expr e2 ^ ")}" 
       | Ast.Literal_List(l)-> "{" ^ (String.concat "," (List.map  create_expr l) ) ^ "}"
-      | Ast.Id(s) -> s
+      | Ast.Id(s) -> "(" ^ s ^ ")"
       | Ast.Binop(e1, o, e2) -> 
       			"(" ^ create_expr e1 ^ " " ^
       			(match o with
@@ -86,8 +86,8 @@ let convert prog =
        | Ast.For(s1, e1, s2, body) -> "for (" ^ create_stmt s1 ^ " " ^ create_expr e1 ^ " ; "
                                       ^ ( remSemColon (create_stmt s2 )) ^ " ) { \n" 
                                       ^ String.concat "" (List.map create_stmt body) ^ "\n } \n"
-       | Ast.While(e, body) -> "while (" ^ create_expr e ^ ") { \n" ^ String.concat "" (List.map create_stmt body) ^ "}\n"
-       | Ast.Ifelse(e, s1, s2) -> "if (" ^ create_expr e ^ ") { \n" ^ String.concat "" (List.map create_stmt s1)
+       | Ast.While(e, body) -> "while " ^ create_expr e ^ " { \n" ^ String.concat "" (List.map create_stmt body) ^ "}\n"
+       | Ast.Ifelse(e, s1, s2) -> "if " ^ create_expr e ^ " { \n" ^ String.concat "" (List.map create_stmt s1)
             ^ "} else { \n" ^ String.concat "" (List.map create_stmt s2) ^ "}\n"
    	   | Ast.Return(expr) -> "return " ^ create_expr expr ^ ";\n"
    	   | Ast.Noexpr       -> ""
