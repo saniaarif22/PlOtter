@@ -290,7 +290,6 @@ stmt:
   | expr LEQ   expr        { Binop($1, Leq,   $3) }
   | expr GREATER  expr     { Binop($1, Greater,  $3) }
   | expr GEQ  expr         { Binop($1, Geq,   $3) }
-  | expr expr              { (parse_error "Missing Equal/not equal/ lesser/ greater/ lesser eq/ greater eq "); }
   | expr EQUAL             { (parse_error "Missing second  expression "); }
   | expr NEQ               { (parse_error "Missing second  expression "); }
   | expr LESS              { (parse_error "Missing second  expression "); }
@@ -299,7 +298,6 @@ stmt:
   | expr GEQ               { (parse_error "Missing second  expression "); }
   | log_expr AND log_expr  { Binop($1, And, $3) }
   | log_expr OR log_expr   { Binop($1, Or, $3) }
-  | log_expr log_expr      { (parse_error "Missing and/ or "); }
   | log_expr OR            { (parse_error "Missing second  expression "); }
   | log_expr AND           { (parse_error "Missing second  expression "); }
   
