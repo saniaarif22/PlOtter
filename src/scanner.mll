@@ -70,7 +70,7 @@ rule token = parse
 | eof { EOF }
 | '#'   { singleLineComment lexbuf }
 | "/*"  { multiLineComment lexbuf }
-| _     { raise (Err.ScanError("Illegal Character darling"))	}
+| _ as c { raise (Failure("Illegal character : " ^ Char.escaped c)) }
 
 and singleLineComment = parse
 | '\n'  {token lexbuf}
