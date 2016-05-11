@@ -26,6 +26,26 @@ end
 
 /*
     Method :
+        drawAxes(num xorigin, num yorigin, num maxWidth, num maxHeight)
+    
+    Return :
+        void
+        
+    Description :
+        Draws cross axis from the passed origin point. Takes max width and max Height to plot lines
+    
+    Future Todo :
+        Send hash, to set the properties of the graph like axis, grid, title etc 
+ */
+fn drawAxes(num ox, num oy, num maxLength, num maxHeight):
+    
+    #Draw axes
+    rect((ox,0), maxHeight, 3)
+    rect((0,maxHeight-oy),3,maxLength)
+end
+
+/*
+    Method :
         barGraph(<num list var>)
     
     Return :
