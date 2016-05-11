@@ -119,7 +119,7 @@ let check stmts =
                         | "liststring"  ->  Sast.Id(v, Sast.ListString)
                         | "listpoint"   ->  Sast.Id(v, Sast.ListPoint)
                         | "listbool"    ->  Sast.Id(v, Sast.ListBool)
-                        | _             ->  fail(" Invalid type..")
+                        | _             ->  fail(" Invalid syntax..")
                     )
                  with
                  | Not_found -> fail ("undeclared variable: " ^ v)
@@ -316,7 +316,18 @@ let check stmts =
                             Sast.List_Decl(dt, id, Sast.ListPoint)
                         else
                             Sast.List_Decl(dt, id, Sast.ListBool)
-            | Ast.Print(e) -> Sast.Print(expr env e)
+            | Ast.Print(e) -> 
+                let se1 = expr env e in
+                let te1 = typeof se1 in
+                Sast.Print(se1)
+            | Ast.PrintXY(e1,e2) -> 
+                let se1 = expr env e1 in
+                let se2 = expr env e2 in
+                let te1 = typeof se1 in
+                let te2 = typeof se2 in
+                if (te2 = Sast.Point)
+                then Sast.PrintXY(se1, se2)
+                else fail("The second argument of printXY should be of type point")
             | Ast.LineVar(e1, e2) -> 
                 let se1 = expr env e1 in
                 let se2 = expr env e2 in

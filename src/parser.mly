@@ -23,7 +23,7 @@
 %token APPEND POP REMOVE AT LENGTH OF
 %token TRUE FALSE
 %token RETURN IF ELSE FOR WHILE END BREAK CONTINUE THEN FN
-%token PRINT
+%token PRINTXY PRINT
 %token LINE
 %token <float> LIT_NUM
 %token <string> LIT_STR
@@ -146,6 +146,7 @@ stmt:
         | cond_stmt EOL      { $1 }
         | list_stmt EOL      { $1 }
         | assign_stmt EOL    { $1 }
+        | PRINTXY LPAREN expr COMMA expr RPAREN EOL     { PrintXY($3, $5) }
         | PRINT expr EOL     { Print($2) }
         | PRINT EOL          { (parse_error "Nothing to print!"); }
         | line EOL           { $1 }

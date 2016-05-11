@@ -77,6 +77,7 @@ let convert prog =
    	   | Ast.Append(v, e) -> create_expr v ^ ".push_back(" ^ ( create_expr e ) ^ ");\n"
    	   | Ast.Pop(v) -> create_expr v ^ ".pop_back();\n"
    	   | Ast.Remove(v,e) -> create_expr v ^ ".erase(" ^ (create_expr v) ^ ".begin() + " ^ ( create_expr e ) ^ ");\n"
+   	   | Ast.PrintXY(e1,e2) -> "put_in_svg( " ^ create_expr e1 ^ "," ^ create_expr e2 ^");\n"
    	   | Ast.Print(e) -> "put_in_svg( " ^ create_expr e ^ ");\n"
        | Ast.LineVar(e1, e2) -> "put_in_svg (" ^ create_expr e1 ^ "," ^ create_expr e2 ^");\n"
        | Ast.LineRaw(e1, e2, e3, e4) -> "put_in_svg (" ^ create_expr e1 ^ "," ^ create_expr e2 
@@ -140,6 +141,13 @@ let convert prog =
     "void put_in_svg(std::string content)\n"^
     "{\n"^
     "  f << \"<text x='250' y='150'>\\n\";\n"^
+    "  f << content;\n"^
+    "  f << \"\\n</text>\\n\";\n"^
+    "}\n"^
+
+   "void put_in_svg(std::string content, float p[2])\n"^
+    "{\n"^
+    "  f << \"<text x='\" + to_string(p[0]) + \"' y='\"+  to_string(p[1])+\"' >\\n\";\n"^
     "  f << content;\n"^
     "  f << \"\\n</text>\\n\";\n"^
     "}\n"^
