@@ -7,8 +7,8 @@
   let parse_error msg = (* called by parser function on error *)
   let start = symbol_start_pos() in
   let final = symbol_end_pos() in
-  Printf.fprintf stdout "Line: %d Chars: %d..%d: %s\n"
-     (start.pos_lnum) (start.pos_cnum - start.pos_bol) (final.pos_cnum - final.pos_bol) msg;
+  Printf.fprintf stdout "Characters: %d..%d: %s\n"
+    (start.pos_cnum - start.pos_bol) (final.pos_cnum - final.pos_bol) msg;
         incr num_errors;
   flush stdout;
   exit 0
