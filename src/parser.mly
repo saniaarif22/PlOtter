@@ -313,7 +313,6 @@ stmt:
   | arith_expr TIMES  arith_expr { Binop($1, Mul,  $3) }
   | arith_expr DIVIDE arith_expr { Binop($1, Div,   $3) }
   | arith_expr MOD arith_expr    { Binop($1, Mod,   $3) }
-  | arith_expr arith_expr        { (parse_error "Missing plus/minus/times/divide/mod "); }
   | arith_expr PLUS              { (parse_error "Missing second arithmetic expression "); }
   | arith_expr MINUS             { (parse_error "Missing second arithmetic expression "); }
   | arith_expr TIMES             { (parse_error "Missing second arithmetic expression "); }
