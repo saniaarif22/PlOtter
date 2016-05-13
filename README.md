@@ -1,6 +1,4 @@
-# PlOtter
-
-    The source files are located in src/
+![Alt Img](https://github.com/saniaarif22/PlOtter/blob/master/Plotter_F-03.png?raw=true)
 
 ### Requirements ###
 	OCaml
@@ -38,3 +36,6 @@
   > ./a.out
 
   - Open the svg file (hello.svg) in a browser to view
+
+
+Logo Designed by Sriram Govindasamy (@Sriram3056)
